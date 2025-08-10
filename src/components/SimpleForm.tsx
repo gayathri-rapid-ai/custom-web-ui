@@ -3,7 +3,7 @@ import { ComponentProps, ComponentUpdateProps, FormComponentProps } from '../typ
 import RenderComponent from '.';
 
 
-const Form: React.FC<FormComponentProps & ComponentUpdateProps> = ({ styles, children, sequenceId, onChange }) => {
+const Form: React.FC<FormComponentProps & ComponentUpdateProps> = ({ styles, children, sequenceId, onSelectForEdit }) => {
     const [formData, setFormData] = useState<Record<string, any>>({});
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

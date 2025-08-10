@@ -49,11 +49,11 @@ export type LinkComponentDataProps = {
   url: string;
 }
 
-export type DataProps = LinkComponentDataProps | LabelComponentDataProps | HeaderComponentDataProps;
+export type DataProps = LinkComponentDataProps | LabelComponentDataProps | HeaderComponentDataProps | null;
 
 export type ComponentUpdateProps = {
   sequenceId: string;
-  onChange: (sequenceId: string, data: DataProps, styles: React.CSSProperties) => void;
+  onSelectForEdit: (sequenceId: string) => void;
   children?: ReactNode | ReactNode[] | null
 }
 
@@ -62,6 +62,7 @@ export type ComponentProps = {
   styles: React.CSSProperties;
   childs?: ComponentProps[];
   data?: DataProps
+  isEditing?: boolean;
 };
 
 export type HeaderComponentDataProps = {
