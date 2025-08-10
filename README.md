@@ -9,7 +9,7 @@ customizable-website
 ├── src
 │   ├── components
 │   │   ├── Header.tsx        # Navigation header component
-│   │   ├── Footer.tsx        # Footer component
+│   │   ├── Footer.tsx        # Footer cogit push -u origin mainmponent
 │   │   ├── SimpleForm.tsx    # Simple form component
 │   │   ├── EditPanel.tsx     # Edit panel for customization
 │   │   └── Navigation.tsx     # Navigation links component
