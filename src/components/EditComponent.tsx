@@ -9,6 +9,7 @@ export interface EditComponentProps {
   onChange?: (data: DataProps, styles: React.CSSProperties) => void;
   onSelectParent: () => void;
   onClose: () => void;
+  name: string; // New prop for tag name
 }
 
 function setNestedValue(obj: any, key: string, value: any) {
@@ -38,7 +39,6 @@ function renderFormFields(data: any, onChange: (key: string, value: any) => void
   ));
 }
 
-
 export function EditComponent({
   data = null,
   styles = {},
@@ -46,7 +46,8 @@ export function EditComponent({
   onStylesChange,
   onChange,
   onSelectParent,
-  onClose
+  onClose,
+  name, // New prop
 }: EditComponentProps) {
   const [showPanel, setShowPanel] = useState(true);
   const [activeTab, setActiveTab] = useState<"data" | "styles">("data");
@@ -55,14 +56,12 @@ export function EditComponent({
   const [newStyleKey, setNewStyleKey] = useState("");
   const [newStyleValue, setNewStyleValue] = useState("");
 
-  // --- Add this useEffect to sync state with props ---
   useEffect(() => {
     setDataState(data);
   }, [data]);
   useEffect(() => {
     setStylesState(styles);
   }, [styles]);
-  // ---------------------------------------------------
 
   const handleDataChange = (key: string, value: any) => {
     const updated = setNestedValue(dataState, key, value);
@@ -125,7 +124,24 @@ export function EditComponent({
               alignItems: "center",
             }}
           >
-            <h3>Edit Props</h3>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <h3 style={{ margin: 0 }}>Edit Props</h3>
+              {name && (
+                <span
+                  style={{
+                    background: "#e0e0e0",
+                    color: "#333",
+                    fontSize: 13,
+                    padding: "2px 8px",
+                    borderRadius: 4,
+                    marginLeft: 4,
+                  }}
+                  title="Component tag"
+                >
+                  {name}
+                </span>
+              )}
+            </div>
             <div style={{ display: "flex", gap: 8 }}>
               <button
                 style={{
