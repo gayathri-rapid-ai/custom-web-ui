@@ -5,6 +5,7 @@ import {
 import { ComponentProps, DataProps } from './types';
 import RenderComponent from './components';
 import EditComponent from './components/EditComponent';
+import componentDefaults from './data/component-defaults';
 
 const App: React.FC = () => {
 
@@ -24,6 +25,7 @@ const handleComponentChange = (sequenceId: string) => {
                 break;
             }
             targetComponent = targetComponent.childs[seqIDs[i]];
+            targetComponent.isEditing = true;
         }
         console.info(targetComponent, "targetComponent");
         setSelectedID(sequenceId);
@@ -69,6 +71,24 @@ const handleComponentChange = (sequenceId: string) => {
                     }}
                     onSelectParent={onSetParentComponent}
                     onClose={() => setSelectedComponent(null)}
+                    onAddComponent={(component: string)=> {
+                        if(componentDefaults[component] === undefined) {
+                            console.error("Component not found in defaults:", component);
+                            return;
+                        }
+                        const newComponent: ComponentProps = {
+                            ...componentDefaults[component],
+                        };
+                        if (selectedComponent?.childs) {
+                            selectedComponent.childs.push(newComponent);
+                        }
+                        else {
+                            selectedComponent.childs = [newComponent];
+                        }
+                        console.info("New component added:", newComponent);
+                        setPage({ ...page });
+                        console.info(page);
+                    }}
                 />
             )}
         </div>

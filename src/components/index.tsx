@@ -16,6 +16,8 @@ import Navigation from "./NavBar";
 import Footer from "./Footer";
 import Form from "./SimpleForm";
 import { Link } from "./Link";
+import Main from "./Main";
+import Section from "./Section";
 
 type RenderComponentProps = ComponentProps & ComponentUpdateProps;
 
@@ -63,6 +65,14 @@ const RenderComponent: React.FC<RenderComponentProps> = (props) => {
     case "link":
       return (
         <Link {...props} data={(props.data ?? {}) as LinkComponentDataProps} />
+      );
+    case "main":
+      return (
+        <Main {...props}>{renderchilds()}</Main>
+      );
+    case "section":
+      return (
+        <Section {...props}>{renderchilds()}</Section>
       );
     case "root":
       return <>{renderchilds()}</>;

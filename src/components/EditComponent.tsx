@@ -1,5 +1,45 @@
 import React, { useEffect, useState } from "react";
 import { DataProps } from "../types";
+import supportedComponentsSchema from "../data/schema"; // Example import: adjust path/name as per your actual schema
+import schema from "../data/schema";
+
+// List of common CSS property names for autocomplete
+const CSS_PROPERTIES = [
+  "background",
+  "backgroundColor",
+  "border",
+  "borderRadius",
+  "boxShadow",
+  "color",
+  "display",
+  "flex",
+  "fontSize",
+  "fontWeight",
+  "height",
+  "justifyContent",
+  "lineHeight",
+  "margin",
+  "marginBottom",
+  "marginLeft",
+  "marginRight",
+  "marginTop",
+  "maxHeight",
+  "maxWidth",
+  "minHeight",
+  "minWidth",
+  "opacity",
+  "overflow",
+  "padding",
+  "paddingBottom",
+  "paddingLeft",
+  "paddingRight",
+  "paddingTop",
+  "position",
+  "textAlign",
+  "textDecoration",
+  "width",
+  "zIndex",
+];
 
 export interface EditComponentProps {
   data?: DataProps;
@@ -8,23 +48,24 @@ export interface EditComponentProps {
   onStylesChange?: (styles: React.CSSProperties) => void;
   onChange?: (data: DataProps, styles: React.CSSProperties) => void;
   onSelectParent: () => void;
+  onAddComponent?: (componentName: string) => void;
   onClose: () => void;
-  name: string; // New prop for tag name
+  name: string;
 }
 
 function setNestedValue(obj: any, key: string, value: any) {
-  // Dummy implementation; replace with your actual logic
   return { ...obj, [key]: value };
 }
 
 function removeNestedKey(obj: any, key: string) {
-  // Dummy implementation; replace with your actual logic
   const { [key]: _, ...rest } = obj;
   return rest;
 }
 
-function renderFormFields(data: any, onChange: (key: string, value: any) => void) {
-  // Dummy implementation; replace with your actual logic
+function renderFormFields(
+  data: any,
+  onChange: (key: string, value: any) => void
+) {
   return Object.entries(data || {}).map(([key, value]) => (
     <div key={key} style={{ marginBottom: 8 }}>
       <label>
@@ -32,11 +73,17 @@ function renderFormFields(data: any, onChange: (key: string, value: any) => void
         <input
           type="text"
           value={value as string}
-          onChange={e => onChange(key, e.target.value)}
+          onChange={(e) => onChange(key, e.target.value)}
         />
       </label>
     </div>
   ));
+}
+
+// Reads supported components from schema
+function getSupportedComponents(name: string): string[] {
+  const components = schema?.[name];
+  return components;
 }
 
 export function EditComponent({
@@ -46,15 +93,21 @@ export function EditComponent({
   onStylesChange,
   onChange,
   onSelectParent,
+  onAddComponent,
   onClose,
-  name, // New prop
+  name,
 }: EditComponentProps) {
   const [showPanel, setShowPanel] = useState(true);
-  const [activeTab, setActiveTab] = useState<"data" | "styles">("data");
+  const [activeTab, setActiveTab] = useState<"data" | "styles" | "components">(
+    "data"
+  );
   const [dataState, setDataState] = useState<DataProps>(data);
   const [stylesState, setStylesState] = useState(styles);
   const [newStyleKey, setNewStyleKey] = useState("");
   const [newStyleValue, setNewStyleValue] = useState("");
+  const [selectedComponent, setSelectedComponent] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     setDataState(data);
@@ -96,6 +149,9 @@ export function EditComponent({
     onStylesChange?.(updated);
     onChange?.(dataState, updated);
   };
+
+  // Get supported components from schema file
+  const supportedComponents = getSupportedComponents(name);
 
   return (
     <div style={{ display: "flex", position: "relative" }}>
@@ -191,6 +247,7 @@ export function EditComponent({
             </button>
             <button
               style={{
+                marginRight: 8,
                 padding: "6px 16px",
                 background: activeTab === "styles" ? "#e0e0e0" : "#fff",
                 border: "1px solid #ccc",
@@ -201,67 +258,153 @@ export function EditComponent({
             >
               Styles
             </button>
+            {supportedComponents?.length > 0 && (
+              <button
+                style={{
+                  padding: "6px 16px",
+                  background: activeTab === "components" ? "#e0e0e0" : "#fff",
+                  border: "1px solid #ccc",
+                  borderRadius: 4,
+                  cursor: "pointer",
+                }}
+                onClick={() => setActiveTab("components")}
+              >
+                Components
+              </button>
+            )}
           </div>
           <div>
-            {activeTab === "data"
-              ? renderFormFields(dataState, handleDataChange)
-              : (
-                <div>
-                  {Object.entries(stylesState).map(([key, value]) => (
-                    <div key={key} style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
-                      <label style={{ flex: 1 }}>
-                        {key}:{" "}
-                        <input
-                          type="text"
-                          value={value as string}
-                          onChange={e => handleStylesChange(key, e.target.value)}
-                        />
-                      </label>
-                      <button
-                        style={{
-                          marginLeft: 8,
-                          background: "#ffdddd",
-                          border: "1px solid #ffaaaa",
-                          borderRadius: 4,
-                          cursor: "pointer",
-                        }}
-                        onClick={() => handleRemoveStyle(key)}
-                        title="Remove style"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                  <div style={{ marginTop: 12 }}>
-                    <input
-                      type="text"
-                      placeholder="Style key"
-                      value={newStyleKey}
-                      onChange={e => setNewStyleKey(e.target.value)}
-                      style={{ width: "40%", marginRight: 8 }}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Style value"
-                      value={newStyleValue}
-                      onChange={e => setNewStyleValue(e.target.value)}
-                      style={{ width: "40%", marginRight: 8 }}
-                    />
+            {activeTab === "data" ? (
+              renderFormFields(dataState, handleDataChange)
+            ) : activeTab === "styles" ? (
+              <div>
+                {Object.entries(stylesState).map(([key, value]) => (
+                  <div
+                    key={key}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <label style={{ flex: 1 }}>
+                      {key}:{" "}
+                      <input
+                        type="text"
+                        value={value as string}
+                        onChange={(e) =>
+                          handleStylesChange(key, e.target.value)
+                        }
+                      />
+                    </label>
                     <button
-                      onClick={handleAddStyle}
                       style={{
-                        padding: "4px 12px",
-                        background: "#e0ffe0",
-                        border: "1px solid #aaffaa",
+                        marginLeft: 8,
+                        background: "#ffdddd",
+                        border: "1px solid #ffaaaa",
                         borderRadius: 4,
                         cursor: "pointer",
                       }}
+                      onClick={() => handleRemoveStyle(key)}
+                      title="Remove style"
                     >
-                      Add
+                      ×
                     </button>
                   </div>
+                ))}
+                <div style={{ marginTop: 12 }}>
+                  {/* Style key autocomplete input */}
+                  <input
+                    list="css-properties"
+                    type="text"
+                    placeholder="Style key"
+                    value={newStyleKey}
+                    onChange={(e) => setNewStyleKey(e.target.value)}
+                    style={{ width: "40%", marginRight: 8 }}
+                  />
+                  <datalist id="css-properties">
+                    {CSS_PROPERTIES.map((prop) => (
+                      <option key={prop} value={prop} />
+                    ))}
+                  </datalist>
+                  <input
+                    type="text"
+                    placeholder="Style value"
+                    value={newStyleValue}
+                    onChange={(e) => setNewStyleValue(e.target.value)}
+                    style={{ width: "40%", marginRight: 8 }}
+                  />
+                  <button
+                    onClick={handleAddStyle}
+                    style={{
+                      padding: "4px 12px",
+                      background: "#e0ffe0",
+                      border: "1px solid #aaffaa",
+                      borderRadius: 4,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Add
+                  </button>
                 </div>
-              )}
+              </div>
+            ) : (
+              supportedComponents?.length > 0 && (
+                <div style={{ color: "#444", padding: "16px 0" }}>
+                  <div style={{ marginBottom: 8, fontWeight: "bold" }}>
+                    Child Components:
+                  </div>
+                  <ul style={{ listStyle: "none", padding: 0 }}>
+                    {supportedComponents.map((comp) => (
+                      <li
+                        key={comp}
+                        style={{
+                          padding: "6px 0",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <button
+                          style={{
+                            textAlign: "left",
+                            background:
+                              selectedComponent === comp ? "#e0e0ff" : "#fff",
+                            border: "1px solid #aaa",
+                            borderRadius: 4,
+                            cursor: "pointer",
+                            padding: "6px 12px",
+                          }}
+                          onClick={() => setSelectedComponent(comp)}
+                        >
+                          {comp}
+                        </button>
+                        <button
+                          style={{
+                            background: "#e0ffe0",
+                            border: "1px solid #b0ebb0",
+                            borderRadius: "50%",
+                            width: 28,
+                            height: 28,
+                            fontSize: 20,
+                            lineHeight: "1",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                          title={`Add "${comp}"`}
+                          // onClick or custom action here
+                          onClick={() => onAddComponent?.(comp)}
+                        >
+                          ＋
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            )}
           </div>
         </div>
       )}

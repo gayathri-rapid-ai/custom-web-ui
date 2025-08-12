@@ -56,8 +56,6 @@ const childs = [
       justifyContent: "space-between",
       alignItems: "center",
       boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-      borderBottomLeftRadius: "12px",
-      borderBottomRightRadius: "12px",
     },
     childs: [
       {
@@ -74,6 +72,28 @@ const childs = [
       } as ComponentProps,
     ],
   },
+  {
+    name: "main",
+    styles: {
+      padding: "32px",
+      background: "#d5d5df",
+      minHeight: "calc(100vh - 64px)",
+      display: "flex",
+      flexDirection: "column",
+      gap: "24px",
+    }
+  } as ComponentProps,
+  {
+    name: "footer",
+    styles: {
+      padding: "16px 32px",
+      backgroundColor: "#333",
+      color: "#fff",
+      textAlign: "center",
+      fontSize: "0.875rem",
+    },
+    childs: [],
+  }
 ];
 
 export const test_data: ComponentProps = {
