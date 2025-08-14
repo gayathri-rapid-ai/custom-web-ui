@@ -148,7 +148,7 @@ const EditLayer: React.FC<ComponentProps & ComponentUpdateProps> = (props) => {
   const minWidthStr = `${MIN_WIDTH_REM}rem`;
   const minHeightStr = `${MIN_HEIGHT_REM}rem`;
 
-  if(props.name !== "section") {
+  if(props.name !== "section" && props.name !== "div") {
     return (
       <>
         {props.children}
@@ -179,7 +179,7 @@ const EditLayer: React.FC<ComponentProps & ComponentUpdateProps> = (props) => {
           minWidth: minWidthStr,
           height: heightStr,
           minHeight: minHeightStr,
-          backgroundColor: 'red', // Fixed: remove the '#'
+//          backgroundColor: 'red', // Fixed: remove the '#'
         }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMoveDiv}

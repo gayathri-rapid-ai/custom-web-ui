@@ -36,7 +36,16 @@ const componentDefaults = {
             inputType: "string",
             label: "New Input",
         }
-    } as InputComponentProps
+    } as InputComponentProps,
+    "div": {
+        name: "div",
+        styles: {
+            backgroundColor: "#fff",
+            minWidth: "3rem",
+            minHeight: "3rem"
+        },
+        data: {}
+    } as ComponentProps
 } as Record<string, ComponentProps>;
 
 export default componentDefaults;

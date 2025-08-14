@@ -1,5 +1,6 @@
 import React from "react";
 import { ComponentUpdateProps, InputComponentProps } from "../types";
+import { Label } from "./Label";
 
 type InputProps = InputComponentProps &
   ComponentUpdateProps & {

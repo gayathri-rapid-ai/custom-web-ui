@@ -6,9 +6,10 @@ import EditComponent from "./components/EditComponent";
 import componentDefaults from "./data/component-defaults";
 
 const App: React.FC = () => {
-  
-  const data = localStorage.getItem("prev_data")
-  const [page, setPage] = useState<ComponentProps>((data === null  ? test_data: JSON.parse(data)) as ComponentProps);
+  const data = localStorage.getItem("prev_data");
+  const [page, setPage] = useState<ComponentProps>(
+    (data === null ? test_data : JSON.parse(data)) as ComponentProps
+  );
   const [isEditingMode, setEditingMode] = useState<boolean>(false);
   const [selectedComponent, setSelectedComponent] =
     useState<ComponentProps | null>(null);
@@ -57,6 +58,40 @@ const App: React.FC = () => {
     setSelectedComponent(targetComponent || null);
   };
 
+  // --- NEW: handle delete logic ---
+  const handleDeleteComponent = () => {
+    if (!selectedID) return;
+    const seqIDs = selectedID
+      .trim()
+      .split("$")
+      .filter((id) => id !== "")
+      .map((id) => parseInt(id, 10));
+    if (seqIDs.length === 0) return; // Can't delete root page
+
+    // parent path = all but last
+    const parentIDs = seqIDs.slice(0, -1);
+    const childIdx = seqIDs[seqIDs.length - 1];
+
+    let parent: ComponentProps | undefined = page;
+    for (let i = 0; i < parentIDs.length; i++) {
+      if (!parent?.childs || isNaN(parentIDs[i])) {
+        parent = undefined;
+        break;
+      }
+      parent = parent.childs[parentIDs[i]];
+    }
+    // Delete the child if parent and childs exist
+    if (parent && Array.isArray(parent.childs)) {
+      parent.childs.splice(childIdx, 1);
+      setPage({ ...page }); // re-render
+      setSelectedID("");
+      setSelectedComponent(null);
+      // persist the change
+      const data_str = JSON.stringify(page);
+      localStorage.setItem("prev_data", data_str.replaceAll("true", "false"));
+    }
+  };
+
   const leftPanelStyle: React.CSSProperties = {
     width: isEditingMode && selectedComponent ? "75%" : "100%",
   };
@@ -66,28 +101,31 @@ const App: React.FC = () => {
 
   const changeEditMode = () => {
     setEditingMode(!isEditingMode);
-    if(selectedComponent) {
-        selectedComponent.isEditing = false
+    if (selectedComponent) {
+      selectedComponent.isEditing = false;
     }
-  }
+  };
 
-  const handleComponentChanges = () =>{
-    setPage({...page})
+  const handleComponentChanges = () => {
+    setPage({ ...page });
     const data_str = JSON.stringify(page);
     localStorage.setItem("prev_data", data_str.replaceAll("true", "false"));
-  }
+  };
 
   const handleStyleChanges = (styles: React.CSSProperties) => {
-    if(selectedComponent) {
-        selectedComponent.styles = styles
+    if (selectedComponent) {
+      selectedComponent.styles = styles;
     }
-    handleComponentChanges()
-  }
+    handleComponentChanges();
+  };
 
   return (
     <div className="App" style={{ width: "100%", display: "flex" }}>
       <div style={leftPanelStyle}>
-        <button onClick={changeEditMode} style={{ float: "right", position: "fixed" }}>
+        <button
+          onClick={changeEditMode}
+          style={{ float: "right", position: "fixed" }}
+        >
           {isEditingMode ? "Exit Editing Mode" : "Enter Editing Mode"}
         </button>
 
@@ -107,7 +145,7 @@ const App: React.FC = () => {
               console.info(styles);
               selectedComponent.data = data;
               selectedComponent.styles = {
-                ...styles
+                ...styles,
               };
               handleComponentChanges();
             }}
@@ -116,7 +154,6 @@ const App: React.FC = () => {
               selectedComponent.isEditing = false;
               setSelectedComponent(null);
               setSelectedID("");
-
             }}
             onAddComponent={(component: string) => {
               if (componentDefaults[component] === undefined) {
@@ -125,19 +162,20 @@ const App: React.FC = () => {
               }
               const newComponent: ComponentProps = {
                 ...componentDefaults[component],
-                isEditing: true
+                isEditing: true,
               };
               if (selectedComponent?.childs) {
                 selectedComponent.childs.push(newComponent);
               } else {
                 selectedComponent.childs = [newComponent];
               }
-              selectedComponent.isEditing = false
+              selectedComponent.isEditing = false;
               setSelectedComponent(selectedComponent.childs[0]);
-              setSelectedID(selectedID+(selectedComponent.childs.length-1)+"$")
+              setSelectedID(selectedID + (selectedComponent.childs.length - 1) + "$");
               setPage({ ...page });
             }}
             onStylesChange={handleStyleChanges}
+            onDeleteComponent={handleDeleteComponent}
           />
         </div>
       )}

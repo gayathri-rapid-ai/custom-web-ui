@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { DataProps } from "../types";
-import supportedComponentsSchema from "../data/schema"; // Example import: adjust path/name as per your actual schema
 import schema from "../data/schema";
 
 // List of common CSS property names for autocomplete
@@ -42,6 +41,7 @@ const CSS_PROPERTIES = [
 ];
 
 export interface EditComponentProps {
+  name: string;
   data?: DataProps;
   styles?: React.CSSProperties;
   onDataChange?: (data: DataProps) => void;
@@ -50,7 +50,7 @@ export interface EditComponentProps {
   onSelectParent: () => void;
   onAddComponent?: (componentName: string) => void;
   onClose: () => void;
-  name: string;
+  onDeleteComponent?: () => void;
 }
 
 function setNestedValue(obj: any, key: string, value: any) {
@@ -87,6 +87,7 @@ function getSupportedComponents(name: string): string[] {
 }
 
 export function EditComponent({
+  name,
   data = null,
   styles = {},
   onDataChange,
@@ -95,7 +96,7 @@ export function EditComponent({
   onSelectParent,
   onAddComponent,
   onClose,
-  name,
+  onDeleteComponent,
 }: EditComponentProps) {
   const [showPanel, setShowPanel] = useState(true);
   const [activeTab, setActiveTab] = useState<"data" | "styles" | "components">(
@@ -266,6 +267,23 @@ export function EditComponent({
             Components
           </button>
         )}
+        {onDeleteComponent && (
+            <button
+              style={{
+                background: "#ffdddd",
+                border: "1px solid #ffaaaa",
+                borderRadius: 4,
+                cursor: "pointer",
+                padding: "4px 12px",
+                marginLeft: 2,
+                color: "#a00",
+              }}
+              onClick={onDeleteComponent}
+              title="Delete this component"
+            >
+              Delete
+            </button>
+          )}
       </div>
       <div>
         {activeTab === "data" ? (
@@ -387,7 +405,6 @@ export function EditComponent({
                         justifyContent: "center",
                       }}
                       title={`Add "${comp}"`}
-                      // onClick or custom action here
                       onClick={() => onAddComponent?.(comp)}
                     >
                       ＋
@@ -402,4 +419,5 @@ export function EditComponent({
     </div>
   );
 }
+
 export default EditComponent;

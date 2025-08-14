@@ -21,6 +21,7 @@ import Main from "./Main";
 import Section from "./Section";
 import EditLayer from "./EditLayer";
 import Input from "./Input";
+import Div from "./Div";
 
 type RenderComponentProps = ComponentProps & ComponentUpdateProps;
 
@@ -96,6 +97,8 @@ const RenderComponent: React.FC<RenderComponentProps> = (props) => {
       return <Main {...props}>{renderchilds()}</Main>;
     case "section":
       return <Section {...props}>{renderchilds()}</Section>;
+    case "div":
+      return <Div {...props}>{renderchilds()}</Div>;
     case "input":
       return (
         <Input
