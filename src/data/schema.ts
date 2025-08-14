@@ -1,5 +1,6 @@
 const schema = {
-    "main": ["section"]
+    "main": ["section"],
+    "section": ["section"]
 } as Record<string, string[]>;
 
 export default schema;

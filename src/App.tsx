@@ -1,98 +1,140 @@
-import React, { useState } from 'react';
-import {
-    test_data
-} from './data/components';
-import { ComponentProps, DataProps } from './types';
-import RenderComponent from './components';
-import EditComponent from './components/EditComponent';
-import componentDefaults from './data/component-defaults';
+import React, { useState } from "react";
+import { test_data } from "./data/components";
+import { ComponentProps, DataProps } from "./types";
+import RenderComponent from "./components";
+import EditComponent from "./components/EditComponent";
+import componentDefaults from "./data/component-defaults";
 
 const App: React.FC = () => {
+  
+  const data = localStorage.getItem("prev_data")
+  const [page, setPage] = useState<ComponentProps>((data === null  ? test_data: JSON.parse(data)) as ComponentProps);
+  const [isEditingMode, setEditingMode] = useState<boolean>(false);
+  const [selectedComponent, setSelectedComponent] =
+    useState<ComponentProps | null>(null);
+  const [selectedID, setSelectedID] = useState<string>("");
 
-    const [page, setPage] = useState<ComponentProps>(test_data as ComponentProps);
-    const [isEditingMode, setEditingMode] = useState<boolean>(false);
-    const [selectedComponent, setSelectedComponent] = useState<ComponentProps|null>(null);
-    const [selectedID, setSelectedID] = useState<string>("");
+  const handleComponentChange = (sequenceId: string) => {
+    const seqIDs = sequenceId
+      .trim()
+      .split("$")
+      .filter((id) => id !== "")
+      .map((id) => parseInt(id, 10));
+    let targetComponent: ComponentProps | undefined = page;
+    for (let i = 0; i < seqIDs.length; i++) {
+      if (!targetComponent?.childs || isNaN(seqIDs[i])) {
+        targetComponent = undefined;
+        break;
+      }
+      targetComponent = targetComponent.childs[seqIDs[i]];
+    }
+    if (selectedComponent) {
+      selectedComponent.isEditing = false;
+    }
+    if (targetComponent) {
+      targetComponent.isEditing = true;
+      setSelectedID(sequenceId);
+      setSelectedComponent(targetComponent || null);
+    }
+  };
 
-const handleComponentChange = (sequenceId: string) => {
-        const seqIDs = sequenceId.trim().split('$').filter(id => id !== '').map(id => parseInt(id, 10));
-        console.info(sequenceId, "sequenceId");
-        let targetComponent: ComponentProps | undefined = page; // Start from root
-        console.info(seqIDs, "seqIDs");
-        for (let i = 0; i < seqIDs.length; i++) {
-            if (!targetComponent?.childs || isNaN(seqIDs[i])) {
-                targetComponent = undefined;
-                break;
-            }
-            targetComponent = targetComponent.childs[seqIDs[i]];
-            targetComponent.isEditing = true;
-        }
-        console.info(targetComponent, "targetComponent");
-        setSelectedID(sequenceId);
-        setSelectedComponent(targetComponent || null);
-    };
+  const onSetParentComponent = () => {
+    let seqIDs = selectedID
+      .trim()
+      .split("$")
+      .filter((id) => id !== "")
+      .map((id) => parseInt(id, 10));
+    seqIDs = seqIDs.slice(0, -1); // Remove last ID to set parent
+    let targetComponent: ComponentProps | undefined = page;
+    for (let i = 0; i < seqIDs.length; i++) {
+      if (!targetComponent?.childs || isNaN(seqIDs[i])) {
+        targetComponent = undefined;
+        break;
+      }
+      targetComponent = targetComponent.childs[seqIDs[i]];
+    }
+    setSelectedID(seqIDs.join("$"));
+    setSelectedComponent(targetComponent || null);
+  };
 
-    const onSetParentComponent = () => {
-        let seqIDs = selectedID.trim().split('$').filter(id => id !== '').map(id => parseInt(id, 10));
-        seqIDs = seqIDs.slice(0, -1); // Remove last ID to set parent
-        console.info(selectedID, "sequenceId");
-        let targetComponent: ComponentProps | undefined = page; // Start from root
-        for (let i = 0; i < seqIDs.length; i++) {
-            if (!targetComponent?.childs || isNaN(seqIDs[i])) {
-                targetComponent = undefined;
-                break;
-            }
-            targetComponent = targetComponent.childs[seqIDs[i]];
-        }
-        console.info(targetComponent, "targetComponent");
-        setSelectedID(seqIDs.join('$'));
-        setSelectedComponent(targetComponent || null);
-    };
+  const leftPanelStyle: React.CSSProperties = {
+    width: isEditingMode && selectedComponent ? "75%" : "100%",
+  };
+  const rightPanelStyle: React.CSSProperties = {
+    width: "25%",
+  };
 
-    return (
-        <div className="App">
-            <h1>Custom Web UI</h1>
-            <button onClick={() => setEditingMode(!isEditingMode)}>
-                {isEditingMode ? "Exit Editing Mode" : "Enter Editing Mode"}
-            </button>
-            
-           <RenderComponent
-                {...page}
-                sequenceId={""}
-                onSelectForEdit={handleComponentChange} 
-            />
-            {isEditingMode && selectedComponent !== null && (
-                <EditComponent
-                    {...selectedComponent}
-                    onChange={(data: DataProps, styles:React.CSSProperties)=>{
-                        selectedComponent.data = data;
-                        selectedComponent.styles = styles;
-                        setPage({ ...page });
-                    }}
-                    onSelectParent={onSetParentComponent}
-                    onClose={() => setSelectedComponent(null)}
-                    onAddComponent={(component: string)=> {
-                        if(componentDefaults[component] === undefined) {
-                            console.error("Component not found in defaults:", component);
-                            return;
-                        }
-                        const newComponent: ComponentProps = {
-                            ...componentDefaults[component],
-                        };
-                        if (selectedComponent?.childs) {
-                            selectedComponent.childs.push(newComponent);
-                        }
-                        else {
-                            selectedComponent.childs = [newComponent];
-                        }
-                        console.info("New component added:", newComponent);
-                        setPage({ ...page });
-                        console.info(page);
-                    }}
-                />
-            )}
+  const changeEditMode = () => {
+    setEditingMode(!isEditingMode);
+    if(selectedComponent) {
+        selectedComponent.isEditing = false
+    }
+  }
+
+  const handleStyleChanges = (styles: React.CSSProperties) => {
+    if(selectedComponent) {
+        selectedComponent.styles = styles
+    }
+    setPage({...page})
+    const data_str = JSON.stringify(page);
+    localStorage.setItem("prev_data", data_str.replaceAll("true", "false"));
+  }
+
+  return (
+    <div className="App" style={{ width: "100%", display: "flex" }}>
+      <div style={leftPanelStyle}>
+        <button onClick={changeEditMode}>
+          {isEditingMode ? "Exit Editing Mode" : "Enter Editing Mode"}
+        </button>
+
+        <RenderComponent
+          {...page}
+          sequenceId={""}
+          onSelectForEdit={handleComponentChange}
+          onEditStyles={handleStyleChanges}
+        />
+      </div>
+      {isEditingMode && selectedComponent !== null && (
+        <div style={rightPanelStyle}>
+          <EditComponent
+            {...selectedComponent}
+            onChange={(data: DataProps, styles: React.CSSProperties) => {
+              selectedComponent.data = data;
+              selectedComponent.styles = styles;
+              setPage({ ...page });
+            }}
+            onSelectParent={onSetParentComponent}
+            onClose={() => {
+              selectedComponent.isEditing = false;
+              setSelectedComponent(null);
+              setSelectedID("");
+
+            }}
+            onAddComponent={(component: string) => {
+              if (componentDefaults[component] === undefined) {
+                console.error("Component not found in defaults:", component);
+                return;
+              }
+              const newComponent: ComponentProps = {
+                ...componentDefaults[component],
+                isEditing: true
+              };
+              if (selectedComponent?.childs) {
+                selectedComponent.childs.push(newComponent);
+              } else {
+                selectedComponent.childs = [newComponent];
+              }
+              selectedComponent.isEditing = false
+              setSelectedComponent(selectedComponent.childs[0]);
+              setSelectedID(selectedID+(selectedComponent.childs.length-1)+"$")
+              setPage({ ...page });
+            }}
+            onStylesChange={handleStyleChanges}
+          />
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default App;

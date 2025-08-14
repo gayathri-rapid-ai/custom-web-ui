@@ -55,6 +55,7 @@ export type ComponentUpdateProps = {
   sequenceId: string;
   onSelectForEdit: (sequenceId: string) => void;
   children?: ReactNode | ReactNode[] | null
+  onEditStyles: (styles: React.CSSProperties) => void;
 }
 
 export type ComponentProps = {

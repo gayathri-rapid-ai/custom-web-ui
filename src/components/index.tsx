@@ -18,23 +18,44 @@ import Form from "./SimpleForm";
 import { Link } from "./Link";
 import Main from "./Main";
 import Section from "./Section";
+import EditLayer from "./EditLayer";
 
 type RenderComponentProps = ComponentProps & ComponentUpdateProps;
 
 const RenderComponent: React.FC<RenderComponentProps> = (props) => {
+
+  const newComponent = (index:number, child:ComponentProps) => {
+    return (<RenderComponent
+                key={index}
+                {...child}
+                sequenceId={props.sequenceId + index.toString() + "$"}
+                onSelectForEdit={props.onSelectForEdit}
+                onEditStyles={props.onEditStyles}
+              />)
+  }
+
   // Helper to render childs if present
   const renderchilds = () => {
     if (Array.isArray(props?.childs)) {
       return (
         <>
-          {props.childs.map((child, index) => (
-            <RenderComponent
-              key={index}
-              {...child}
-              sequenceId={props.sequenceId + index.toString() + "$"}
-              onSelectForEdit={props.onSelectForEdit}
-            />
-          ))}
+          {props.childs.map((child: ComponentProps, index: number) => {
+            // If the child is in editing mode, wrap it in EditLayer
+            if (child.isEditing) {
+              return (
+                  <EditLayer
+                    key={index}
+                    {...child}
+                    sequenceId={props.sequenceId + index.toString() + "$"}
+                    onSelectForEdit={props.onSelectForEdit}
+                    onEditStyles={props.onEditStyles}
+                  >
+                    {newComponent(index, child)}
+                  </EditLayer>
+              );
+            }
+            return newComponent(index, child);
+          })}
         </>
       );
     } else {
