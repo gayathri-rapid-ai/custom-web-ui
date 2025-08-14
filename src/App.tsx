@@ -71,25 +71,30 @@ const App: React.FC = () => {
     }
   }
 
-  const handleStyleChanges = (styles: React.CSSProperties) => {
-    if(selectedComponent) {
-        selectedComponent.styles = styles
-    }
+  const handleComponentChanges = () =>{
     setPage({...page})
     const data_str = JSON.stringify(page);
     localStorage.setItem("prev_data", data_str.replaceAll("true", "false"));
   }
 
+  const handleStyleChanges = (styles: React.CSSProperties) => {
+    if(selectedComponent) {
+        selectedComponent.styles = styles
+    }
+    handleComponentChanges()
+  }
+
   return (
     <div className="App" style={{ width: "100%", display: "flex" }}>
       <div style={leftPanelStyle}>
-        <button onClick={changeEditMode}>
+        <button onClick={changeEditMode} style={{ float: "right", position: "fixed" }}>
           {isEditingMode ? "Exit Editing Mode" : "Enter Editing Mode"}
         </button>
 
         <RenderComponent
           {...page}
           sequenceId={""}
+          isEditingMode={isEditingMode}
           onSelectForEdit={handleComponentChange}
           onEditStyles={handleStyleChanges}
         />
@@ -99,9 +104,12 @@ const App: React.FC = () => {
           <EditComponent
             {...selectedComponent}
             onChange={(data: DataProps, styles: React.CSSProperties) => {
+              console.info(styles);
               selectedComponent.data = data;
-              selectedComponent.styles = styles;
-              setPage({ ...page });
+              selectedComponent.styles = {
+                ...styles
+              };
+              handleComponentChanges();
             }}
             onSelectParent={onSetParentComponent}
             onClose={() => {

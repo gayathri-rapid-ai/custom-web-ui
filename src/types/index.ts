@@ -49,13 +49,20 @@ export type LinkComponentDataProps = {
   url: string;
 }
 
-export type DataProps = LinkComponentDataProps | LabelComponentDataProps | HeaderComponentDataProps | null;
+export type InputComponentDataProps = {
+  label: string;
+  inputType: "string" | "number";
+  placeHolder?: string;
+}
+
+export type DataProps = LinkComponentDataProps | LabelComponentDataProps | HeaderComponentDataProps | InputComponentDataProps | null;
 
 export type ComponentUpdateProps = {
   sequenceId: string;
   onSelectForEdit: (sequenceId: string) => void;
   children?: ReactNode | ReactNode[] | null
   onEditStyles: (styles: React.CSSProperties) => void;
+  isEditingMode: boolean
 }
 
 export type ComponentProps = {
@@ -79,6 +86,10 @@ export type NavBarComponentProps = ComponentProps;
 export type LinkComponentProps = {
   data: LinkComponentDataProps
 } & ComponentProps;
+
+export type InputComponentProps = {
+  data: InputComponentDataProps
+} & ComponentProps
 
 export type FormComponentProps = ComponentProps;
 

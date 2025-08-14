@@ -148,6 +148,14 @@ const EditLayer: React.FC<ComponentProps & ComponentUpdateProps> = (props) => {
   const minWidthStr = `${MIN_WIDTH_REM}rem`;
   const minHeightStr = `${MIN_HEIGHT_REM}rem`;
 
+  if(props.name !== "section") {
+    return (
+      <>
+        {props.children}
+      </>
+    )
+  }
+
   return (
     <div
       style={{

@@ -5,6 +5,7 @@ import {
   ComponentUpdateProps,
   FormComponentProps,
   HeaderComponentProps,
+  InputComponentDataProps,
   LabelComponentDataProps,
   LabelComponentProps,
   LinkComponentDataProps,
@@ -19,20 +20,23 @@ import { Link } from "./Link";
 import Main from "./Main";
 import Section from "./Section";
 import EditLayer from "./EditLayer";
+import Input from "./Input";
 
 type RenderComponentProps = ComponentProps & ComponentUpdateProps;
 
 const RenderComponent: React.FC<RenderComponentProps> = (props) => {
-
-  const newComponent = (index:number, child:ComponentProps) => {
-    return (<RenderComponent
-                key={index}
-                {...child}
-                sequenceId={props.sequenceId + index.toString() + "$"}
-                onSelectForEdit={props.onSelectForEdit}
-                onEditStyles={props.onEditStyles}
-              />)
-  }
+  const newComponent = (index: number, child: ComponentProps) => {
+    return (
+      <RenderComponent
+        key={index}
+        {...child}
+        sequenceId={props.sequenceId + index.toString() + "$"}
+        onSelectForEdit={props.onSelectForEdit}
+        onEditStyles={props.onEditStyles}
+        isEditingMode={props.isEditingMode}
+      />
+    );
+  };
 
   // Helper to render childs if present
   const renderchilds = () => {
@@ -43,15 +47,16 @@ const RenderComponent: React.FC<RenderComponentProps> = (props) => {
             // If the child is in editing mode, wrap it in EditLayer
             if (child.isEditing) {
               return (
-                  <EditLayer
-                    key={index}
-                    {...child}
-                    sequenceId={props.sequenceId + index.toString() + "$"}
-                    onSelectForEdit={props.onSelectForEdit}
-                    onEditStyles={props.onEditStyles}
-                  >
-                    {newComponent(index, child)}
-                  </EditLayer>
+                <EditLayer
+                  key={index}
+                  {...child}
+                  sequenceId={props.sequenceId + index.toString() + "$"}
+                  onSelectForEdit={props.onSelectForEdit}
+                  onEditStyles={props.onEditStyles}
+                  isEditingMode={props.isEditingMode}
+                >
+                  {newComponent(index, child)}
+                </EditLayer>
               );
             }
             return newComponent(index, child);
@@ -88,12 +93,15 @@ const RenderComponent: React.FC<RenderComponentProps> = (props) => {
         <Link {...props} data={(props.data ?? {}) as LinkComponentDataProps} />
       );
     case "main":
-      return (
-        <Main {...props}>{renderchilds()}</Main>
-      );
+      return <Main {...props}>{renderchilds()}</Main>;
     case "section":
+      return <Section {...props}>{renderchilds()}</Section>;
+    case "input":
       return (
-        <Section {...props}>{renderchilds()}</Section>
+        <Input
+          {...props}
+          data={(props.data ?? {}) as InputComponentDataProps}
+        ></Input>
       );
     case "root":
       return <>{renderchilds()}</>;

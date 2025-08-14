@@ -1,4 +1,4 @@
-import { ComponentProps } from "../types";
+import { ComponentProps, InputComponentDataProps, InputComponentProps, LabelComponentProps, LinkComponentProps } from "../types";
 
 const componentDefaults = {
     "section": {
@@ -12,7 +12,31 @@ const componentDefaults = {
         childs: [],
         data: undefined,
         isEditing: false,
-    }
+    },
+    "label": {
+        name: "label",
+        data: {
+            label: "New Label",
+            url: ""
+        },
+        styles: {}
+    } as LabelComponentProps,
+    "link": {
+        name: "link",
+        data: {
+            label: "New Link",
+            url: ""
+        },
+        styles: {}
+    } as LinkComponentProps,
+    "input": {
+        name: "input",
+        styles: {},
+        data: {
+            inputType: "string",
+            label: "New Input",
+        }
+    } as InputComponentProps
 } as Record<string, ComponentProps>;
 
 export default componentDefaults;
