@@ -9,12 +9,17 @@ import {
 const NavBar: React.FC<NavBarComponentProps & ComponentUpdateProps> = (
   props
 ) => {
+
+  const { isEditingMode } = props
+
   return (
     <nav
       onClick={(e) => {
-        props.onSelectForEdit?.(props.sequenceId);
-        e.stopPropagation();
-        e.preventDefault();
+        if(isEditingMode) {
+          props.onSelectForEdit?.(props.sequenceId);
+          e.stopPropagation();
+          e.preventDefault();
+        }
       }}
     >
       <ul
@@ -28,9 +33,11 @@ const NavBar: React.FC<NavBarComponentProps & ComponentUpdateProps> = (
           alignItems: "center",
         }}
         onClick={(e) => {
-          props.onSelectForEdit?.(props.sequenceId);
-          e.stopPropagation();
-          e.preventDefault();
+          if(isEditingMode) {
+            props.onSelectForEdit?.(props.sequenceId);
+            e.stopPropagation();
+            e.preventDefault();
+          }
         }}
       >
         {props.children}

@@ -2,7 +2,7 @@
 //     navigationUrl: string;
 // };
 
-import { ReactNode } from "react";
+import { ReactNode, SyntheticEvent } from "react";
 
 // export type NavigationLink = {
 //     label: string;
@@ -59,7 +59,7 @@ export type DataProps = LinkComponentDataProps | LabelComponentDataProps | Heade
 
 export type ComponentUpdateProps = {
   sequenceId: string;
-  onSelectForEdit: (sequenceId: string) => void;
+  onSelectForEdit?: (sequenceId: string) => void;
   children?: ReactNode | ReactNode[] | null
   onEditStyles: (styles: React.CSSProperties) => void;
   isEditingMode: boolean

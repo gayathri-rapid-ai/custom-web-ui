@@ -1,22 +1,14 @@
 import React from "react";
 import { ComponentProps, ComponentUpdateProps } from "../types";
+import onClickComponent from "./Common";
 
 const Div: React.FC<ComponentProps & ComponentUpdateProps> = (props) => {
 
-    const { 
-        isEditingMode
-     } = props
-
+    const clickComponent = onClickComponent(props)
     return (
         <div
-        style={props.styles}
-        onClick={(e) => {
-            if(isEditingMode) {
-                props.onSelectForEdit?.(props.sequenceId);
-                e.stopPropagation();
-                e.preventDefault();
-            }
-        }}
+            style={props.styles}
+            onClick={clickComponent}
         >
             {props.children}
         </div>

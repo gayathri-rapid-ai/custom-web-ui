@@ -26,7 +26,9 @@ import Div from "./Div";
 type RenderComponentProps = ComponentProps & ComponentUpdateProps;
 
 const RenderComponent: React.FC<RenderComponentProps> = (props) => {
+
   const newComponent = (index: number, child: ComponentProps) => {
+
     return (
       <RenderComponent
         key={index}

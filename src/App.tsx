@@ -118,7 +118,7 @@ const App: React.FC = () => {
     }
     handleComponentChanges();
   };
-
+  
   return (
     <div className="App" style={{ width: "100%", display: "flex" }}>
       <div style={leftPanelStyle}>
