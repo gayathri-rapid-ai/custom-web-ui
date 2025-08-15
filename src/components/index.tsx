@@ -2,15 +2,11 @@ import React from "react";
 import { Label } from "./Label";
 import {
   ComponentProps,
+  ComponentRenderProps,
   ComponentUpdateProps,
-  FormComponentProps,
-  HeaderComponentProps,
   InputComponentDataProps,
   LabelComponentDataProps,
-  LabelComponentProps,
   LinkComponentDataProps,
-  LinkComponentProps,
-  NavBarComponentProps,
 } from "../types";
 import Header from "./Header";
 import Navigation from "./NavBar";
@@ -23,11 +19,11 @@ import EditLayer from "./EditLayer";
 import Input from "./Input";
 import Div from "./Div";
 
-type RenderComponentProps = ComponentProps & ComponentUpdateProps;
+type RenderComponentRenderProps = ComponentRenderProps & ComponentUpdateProps;
 
-const RenderComponent: React.FC<RenderComponentProps> = (props) => {
+const RenderComponent: React.FC<RenderComponentRenderProps> = (props) => {
 
-  const newComponent = (index: number, child: ComponentProps) => {
+  const newComponent = (index: number, child: ComponentRenderProps) => {
 
     return (
       <RenderComponent
@@ -108,6 +104,12 @@ const RenderComponent: React.FC<RenderComponentProps> = (props) => {
           data={(props.data ?? {}) as InputComponentDataProps}
         ></Input>
       );
+    case "input_with_label":
+      return(
+        <div>
+          {renderchilds()}
+        </div>
+      )
     case "root":
       return <>{renderchilds()}</>;
     default:

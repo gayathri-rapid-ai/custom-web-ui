@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { ComponentProps, ComponentUpdateProps } from "../types";
+import { ComponentRenderProps, ComponentUpdateProps } from "../types";
 
 // Minimum size in rems (numbers, not strings)
 const MIN_WIDTH_REM = 6;
@@ -50,7 +50,7 @@ function parseRem(val: unknown, fallback: number): number {
 /**
  * EditLayer - enables resizing by dragging the lower right corner, with rem sizing
  */
-const EditLayer: React.FC<ComponentProps & ComponentUpdateProps> = (props) => {
+const EditLayer: React.FC<ComponentRenderProps & ComponentUpdateProps> = (props) => {
   const layerRef = useRef<HTMLDivElement>(null);
   const [isResizing, setIsResizing] = useState(false);
   const [dimensions, setDimensions] = useState<{

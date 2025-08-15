@@ -1,12 +1,13 @@
 import {
   ComponentProps,
+  ComponentRenderProps,
   InputComponentDataProps,
   InputComponentProps,
   LabelComponentProps,
   LinkComponentProps,
 } from "../types";
 
-const componentDefaults = {
+const componentDefaults: Record<string, ComponentRenderProps> = {
   section: {
     name: "section",
     styles: {
@@ -17,31 +18,29 @@ const componentDefaults = {
     },
     childs: [],
     data: undefined,
-    isEditing: false,
   },
   label: {
     name: "label",
+    styles: {},
     data: {
       label: "New Label",
-      url: "",
     },
-    styles: {},
   } as LabelComponentProps,
   link: {
     name: "link",
+    styles: {},
     data: {
       label: "New Link",
       url: "",
     },
-    styles: {},
   } as LinkComponentProps,
   input: {
     name: "input",
     styles: {},
-    labelStyles: {},
     data: {
+      label: "Field",
       inputType: "string",
-      label: "New Input",
+      placeHolder: "Field name",
     },
   } as InputComponentProps,
   div: {
@@ -52,29 +51,30 @@ const componentDefaults = {
       minHeight: "3rem",
     },
     data: {},
-  } as ComponentProps,
+  } as ComponentRenderProps,
   input_with_label: {
-    name: "input_with_label",
+    name: "div",
     styles: {},
+    use_common: true,
     childs: [
       {
-        name: "link",
-        data: {
-          label: "Label",
-          url: "",
-        },
+        name: "label",
         styles: {},
-      } as LinkComponentProps,
-      {
+        data: {
+          label: "New Label",
+        },
+      } as LabelComponentProps,
+     {
         name: "input",
         styles: {},
         data: {
+          label: "Field",
           inputType: "string",
-          label: "New Input",
+          placeHolder: "Field name",
         },
-      },
-    ],
+      } as InputComponentProps,
+    ] as ComponentProps[],
   },
-} as Record<string, ComponentProps>;
+};
 
 export default componentDefaults;

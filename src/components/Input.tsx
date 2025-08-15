@@ -1,9 +1,8 @@
 import React from "react";
-import { ComponentUpdateProps, InputComponentProps } from "../types";
-import { Label } from "./Label";
+import { ComponentProps, InputComponentProps } from "../types";
 
 type InputProps = InputComponentProps &
-  ComponentUpdateProps & {
+  ComponentProps & {
     isEditing?: boolean;
   };
 
@@ -18,7 +17,6 @@ const Input: React.FC<InputProps> = (props) => {
     : {};
 
   return (
-    <div id={props.sequenceId} style={props.styles}>
       <input
         type={props.data.inputType}
         onClick={(e) => {
@@ -30,7 +28,6 @@ const Input: React.FC<InputProps> = (props) => {
         onChange={isEditingMode ? (e) => e.preventDefault() : undefined}
         {...inputProps}
       />
-    </div>
   );
 };
 

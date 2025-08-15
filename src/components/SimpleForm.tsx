@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { ComponentProps, ComponentUpdateProps, FormComponentProps } from '../types';
-import RenderComponent from '.';
+import { ComponentUpdateProps, FormComponentProps } from '../types';
 
 
 const Form: React.FC<FormComponentProps & ComponentUpdateProps> = ({ styles, children, sequenceId, onSelectForEdit }) => {

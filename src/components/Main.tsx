@@ -1,6 +1,6 @@
-import { ComponentProps, ComponentUpdateProps } from "../types";
+import { ComponentRenderProps, ComponentUpdateProps } from "../types";
 
-export default function Main(props: ComponentProps & ComponentUpdateProps) {
+export default function Main(props: ComponentRenderProps & ComponentUpdateProps) {
 
   const { isEditingMode } = props
 

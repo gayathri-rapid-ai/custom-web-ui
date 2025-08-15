@@ -40,9 +40,6 @@ export type LabelComponentDataProps = {
   label: string;
 };
 
-export type LabelComponentProps = {
-  data: LabelComponentDataProps;
-} & ComponentProps;
 
 export type LinkComponentDataProps = {
   label: string;
@@ -63,15 +60,18 @@ export type ComponentUpdateProps = {
   children?: ReactNode | ReactNode[] | null
   onEditStyles: (styles: React.CSSProperties) => void;
   isEditingMode: boolean
+  isEditing?: boolean;
 }
 
-export type ComponentProps = {
+export type ComponentRenderProps = {
   name: string;
   styles: React.CSSProperties;
   childs?: ComponentProps[];
   data?: DataProps
-  isEditing?: boolean;
+  use_common?: boolean
 };
+
+export type ComponentProps = ComponentRenderProps & ComponentUpdateProps
 
 export type HeaderComponentDataProps = {
   label: string;
@@ -79,18 +79,22 @@ export type HeaderComponentDataProps = {
 
 export type HeaderComponentProps = {
   data: HeaderComponentDataProps;
-} & ComponentProps;
+} & ComponentRenderProps;
+
+export type LabelComponentProps = {
+  data: LabelComponentDataProps;
+} & ComponentRenderProps;
 
 export type NavBarComponentProps = ComponentProps;
 
 export type LinkComponentProps = {
   data: LinkComponentDataProps
-} & ComponentProps;
+} & ComponentRenderProps;
 
 export type InputComponentProps = {
   data: InputComponentDataProps
-} & ComponentProps
+} & ComponentRenderProps
 
-export type FormComponentProps = ComponentProps;
+export type FormComponentProps = ComponentRenderProps;
 
 export type ComponentName = string;

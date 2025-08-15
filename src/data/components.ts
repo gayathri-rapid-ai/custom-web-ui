@@ -1,6 +1,6 @@
 import {
   ComponentName,
-  ComponentProps,
+  ComponentRenderProps,
   LinkComponentDataProps,
   LinkComponentProps,
 } from "../types";
@@ -69,7 +69,7 @@ const childs = [
           alignItems: "center",
         },
         childs: [link1, link2],
-      } as ComponentProps,
+      } as ComponentRenderProps,
     ],
   },
   {
@@ -82,7 +82,7 @@ const childs = [
       flexDirection: "column",
       gap: "24px",
     }
-  } as ComponentProps,
+  } as ComponentRenderProps,
   {
     name: "footer",
     styles: {
@@ -96,10 +96,10 @@ const childs = [
   }
 ];
 
-export const test_data: ComponentProps = {
+export const test_data: ComponentRenderProps = {
   name: "page",
   styles: {},
   childs: childs,
-} as ComponentProps;
+} as ComponentRenderProps;
 
 export default test_data;

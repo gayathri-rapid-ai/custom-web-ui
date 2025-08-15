@@ -1,8 +1,8 @@
 import React from "react";
-import { ComponentProps, ComponentUpdateProps } from "../types";
+import { ComponentRenderProps, ComponentUpdateProps } from "../types";
 import onClickComponent from "./Common";
 
-const Div: React.FC<ComponentProps & ComponentUpdateProps> = (props) => {
+const Div: React.FC<ComponentRenderProps & ComponentUpdateProps> = (props) => {
 
     const clickComponent = onClickComponent(props)
     return (

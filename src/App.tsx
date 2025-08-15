@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { test_data } from "./data/components";
-import { ComponentProps, DataProps } from "./types";
+import { ComponentProps, ComponentRenderProps, DataProps } from "./types";
 import RenderComponent from "./components";
 import EditComponent from "./components/EditComponent";
 import componentDefaults from "./data/component-defaults";
 
 const App: React.FC = () => {
   const data = localStorage.getItem("prev_data");
-  const [page, setPage] = useState<ComponentProps>(
-    (data === null ? test_data : JSON.parse(data)) as ComponentProps
+  const [page, setPage] = useState<ComponentRenderProps>(
+    (data === null ? test_data : JSON.parse(data)) as ComponentRenderProps
   );
   const [isEditingMode, setEditingMode] = useState<boolean>(false);
   const [selectedComponent, setSelectedComponent] =
@@ -21,7 +21,12 @@ const App: React.FC = () => {
       .split("$")
       .filter((id) => id !== "")
       .map((id) => parseInt(id, 10));
-    let targetComponent: ComponentProps | undefined = page;
+    let targetComponent: ComponentProps | undefined = {
+      ...page,
+      isEditingMode: false,
+      onEditStyles: () => {},
+      sequenceId: "",
+    };
     for (let i = 0; i < seqIDs.length; i++) {
       if (!targetComponent?.childs || isNaN(seqIDs[i])) {
         targetComponent = undefined;
@@ -46,7 +51,12 @@ const App: React.FC = () => {
       .filter((id) => id !== "")
       .map((id) => parseInt(id, 10));
     seqIDs = seqIDs.slice(0, -1); // Remove last ID to set parent
-    let targetComponent: ComponentProps | undefined = page;
+    let targetComponent: ComponentProps | undefined = {
+      ...page,
+      isEditingMode: false,
+      onEditStyles: () => {},
+      sequenceId: "",
+    };
     for (let i = 0; i < seqIDs.length; i++) {
       if (!targetComponent?.childs || isNaN(seqIDs[i])) {
         targetComponent = undefined;
@@ -72,7 +82,7 @@ const App: React.FC = () => {
     const parentIDs = seqIDs.slice(0, -1);
     const childIdx = seqIDs[seqIDs.length - 1];
 
-    let parent: ComponentProps | undefined = page;
+    let parent: ComponentRenderProps | undefined = page;
     for (let i = 0; i < parentIDs.length; i++) {
       if (!parent?.childs || isNaN(parentIDs[i])) {
         parent = undefined;
@@ -118,7 +128,7 @@ const App: React.FC = () => {
     }
     handleComponentChanges();
   };
-  
+
   return (
     <div className="App" style={{ width: "100%", display: "flex" }}>
       <div style={leftPanelStyle}>
@@ -162,7 +172,9 @@ const App: React.FC = () => {
               }
               const newComponent: ComponentProps = {
                 ...componentDefaults[component],
-                isEditing: true,
+                isEditingMode: true,
+                sequenceId: selectedID + ((selectedComponent?.childs?.length || 1) - 1) + "$",
+                onEditStyles: handleStyleChanges
               };
               if (selectedComponent?.childs) {
                 selectedComponent.childs.push(newComponent);
@@ -171,11 +183,16 @@ const App: React.FC = () => {
               }
               selectedComponent.isEditing = false;
               setSelectedComponent(selectedComponent.childs[0]);
-              setSelectedID(selectedID + (selectedComponent.childs.length - 1) + "$");
+              setSelectedID(
+                selectedID + (selectedComponent.childs.length - 1) + "$"
+              );
               setPage({ ...page });
             }}
             onStylesChange={handleStyleChanges}
             onDeleteComponent={handleDeleteComponent}
+            onSelectChild={(sequenceId)=> {
+              handleComponentChange(sequenceId);
+            }}
           />
         </div>
       )}

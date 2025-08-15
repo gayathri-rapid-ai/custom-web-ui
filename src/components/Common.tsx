@@ -1,9 +1,8 @@
 import { SyntheticEvent } from "react";
-import { ComponentProps, ComponentUpdateProps } from "../types";
+import { ComponentProps } from "../types";
 
 const onClickComponent = (
-  props: ComponentProps &
-    ComponentUpdateProps & {
+  props: ComponentProps & {
       onClick?: (e: SyntheticEvent) => any;
     }
 ) => {

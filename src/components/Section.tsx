@@ -1,7 +1,7 @@
 import React from "react";
-import { ComponentProps, ComponentUpdateProps } from "../types";
+import { ComponentRenderProps, ComponentUpdateProps } from "../types";
 
-const Section: React.FC<ComponentProps & ComponentUpdateProps> = (props) => {
+const Section: React.FC<ComponentRenderProps & ComponentUpdateProps> = (props) => {
   return (
     <section
       style={props.styles}

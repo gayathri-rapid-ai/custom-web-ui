@@ -1,9 +1,9 @@
 import React from 'react';
-import { ComponentProps, ComponentUpdateProps } from '../types';
+import { ComponentRenderProps, ComponentUpdateProps } from '../types';
 import onClickComponent from './Common';
 
 
-const Footer: React.FC<ComponentProps & ComponentUpdateProps> = (props) => {
+const Footer: React.FC<ComponentRenderProps & ComponentUpdateProps> = (props) => {
 
     const clickComponent = onClickComponent(props)
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { DataProps } from "../types";
+import { ComponentProps, DataProps } from "../types";
 import schema from "../data/schema";
 
 // List of common CSS property names for autocomplete
@@ -40,9 +40,10 @@ const CSS_PROPERTIES = [
   "zIndex",
 ];
 
-export interface EditComponentProps {
+export interface EditComponentRenderProps {
   name: string;
   data?: DataProps;
+  childs?: ComponentProps[];
   styles?: React.CSSProperties;
   onDataChange?: (data: DataProps) => void;
   onStylesChange?: (styles: React.CSSProperties) => void;
@@ -51,6 +52,7 @@ export interface EditComponentProps {
   onAddComponent?: (componentName: string) => void;
   onClose: () => void;
   onDeleteComponent?: () => void;
+  onSelectChild?: (childId: string) => void; // Added for child traversal
 }
 
 function setNestedValue(obj: any, key: string, value: any) {
@@ -80,7 +82,6 @@ function renderFormFields(
   ));
 }
 
-// Reads supported components from schema
 function getSupportedComponents(name: string): string[] {
   const components = schema?.[name];
   return components;
@@ -90,6 +91,7 @@ export function EditComponent({
   name,
   data = null,
   styles = {},
+  childs,
   onDataChange,
   onStylesChange,
   onChange,
@@ -97,25 +99,18 @@ export function EditComponent({
   onAddComponent,
   onClose,
   onDeleteComponent,
-}: EditComponentProps) {
+  onSelectChild,
+}: EditComponentRenderProps) {
   const [showPanel, setShowPanel] = useState(true);
-  const [activeTab, setActiveTab] = useState<"data" | "styles" | "components">(
-    "data"
-  );
+  const [activeTab, setActiveTab] = useState<"data" | "styles" | "components" | "children">("data");
   const [dataState, setDataState] = useState<DataProps>(data);
   const [stylesState, setStylesState] = useState(styles);
   const [newStyleKey, setNewStyleKey] = useState("");
   const [newStyleValue, setNewStyleValue] = useState("");
-  const [selectedComponent, setSelectedComponent] = useState<string | null>(
-    null
-  );
+  const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
 
-  useEffect(() => {
-    setDataState(data);
-  }, [data]);
-  useEffect(() => {
-    setStylesState(styles);
-  }, [styles]);
+  useEffect(() => { setDataState(data); }, [data]);
+  useEffect(() => { setStylesState(styles); }, [styles]);
 
   const handleDataChange = (key: string, value: any) => {
     const updated = setNestedValue(dataState, key, value);
@@ -151,7 +146,6 @@ export function EditComponent({
     onChange?.(dataState, updated);
   };
 
-  // Get supported components from schema file
   const supportedComponents = getSupportedComponents(name);
 
   return (
@@ -256,6 +250,7 @@ export function EditComponent({
         {supportedComponents?.length > 0 && (
           <button
             style={{
+              marginRight: 8,
               padding: "6px 16px",
               background: activeTab === "components" ? "#e0e0e0" : "#fff",
               border: "1px solid #ccc",
@@ -267,23 +262,39 @@ export function EditComponent({
             Components
           </button>
         )}
+        {/* CHILDREN TAB */}
+        {childs && childs?.length > 0 && (
+          <button
+            style={{
+              marginRight: 8,
+              padding: "6px 16px",
+              background: activeTab === "children" ? "#e0e0e0" : "#fff",
+              border: "1px solid #ccc",
+              borderRadius: 4,
+              cursor: "pointer",
+            }}
+            onClick={() => setActiveTab("children")}
+          >
+            Children
+          </button>
+        )}
         {onDeleteComponent && (
-            <button
-              style={{
-                background: "#ffdddd",
-                border: "1px solid #ffaaaa",
-                borderRadius: 4,
-                cursor: "pointer",
-                padding: "4px 12px",
-                marginLeft: 2,
-                color: "#a00",
-              }}
-              onClick={onDeleteComponent}
-              title="Delete this component"
-            >
-              Delete
-            </button>
-          )}
+          <button
+            style={{
+              background: "#ffdddd",
+              border: "1px solid #ffaaaa",
+              borderRadius: 4,
+              cursor: "pointer",
+              padding: "4px 12px",
+              marginLeft: 2,
+              color: "#a00",
+            }}
+            onClick={onDeleteComponent}
+            title="Delete this component"
+          >
+            Delete
+          </button>
+        )}
       </div>
       <div>
         {activeTab === "data" ? (
@@ -359,11 +370,11 @@ export function EditComponent({
               </button>
             </div>
           </div>
-        ) : (
+        ) : activeTab === "components" ? (
           supportedComponents?.length > 0 && (
             <div style={{ color: "#444", padding: "16px 0" }}>
               <div style={{ marginBottom: 8, fontWeight: "bold" }}>
-                Child Components:
+                Add Components:
               </div>
               <ul style={{ listStyle: "none", padding: 0 }}>
                 {supportedComponents.map((comp) => (
@@ -414,7 +425,45 @@ export function EditComponent({
               </ul>
             </div>
           )
-        )}
+        ) : activeTab === "children" ? (
+          <div style={{ padding: "16px 0" }}>
+            <div style={{ marginBottom: 8, fontWeight: "bold" }}>
+              Child Components:
+            </div>
+            {childs?.length === 0 ? (
+              <div style={{ color: "#888" }}>No children.</div>
+            ) : (
+              <ul style={{ listStyle: "none", padding: 0 }}>
+                {childs?.map((child: ComponentProps, index:number) => (
+                  <li
+                    key={child.sequenceId +"-traverse"+index}
+                    style={{
+                      marginBottom: 6,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <span style={{ fontWeight: "bold" }}>{child.name}</span>
+                    <button
+                      style={{
+                        background: "#e0e0ff",
+                        border: "1px solid #aaa",
+                        borderRadius: 4,
+                        cursor: "pointer",
+                        padding: "4px 10px",
+                      }}
+                      title={`Traverse to "${child.name}"`}
+                      onClick={() => onSelectChild?.(child.sequenceId+`${index}$`)}
+                    >
+                      Traverse
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ) : null }
       </div>
     </div>
   );
