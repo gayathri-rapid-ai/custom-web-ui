@@ -1,4 +1,11 @@
-import React, { useState, createContext, useContext, ReactNode, Dispatch, SetStateAction } from "react";
+import React, {
+  useState,
+  createContext,
+  useContext,
+  ReactNode,
+  Dispatch,
+  SetStateAction
+} from "react";
 import { Label } from "./Label";
 import {
   ComponentProps,
@@ -31,17 +38,14 @@ type RenderComponentRenderProps = ComponentRenderProps & ComponentUpdateProps;
 interface HighlightWrapperProps {
   children: ReactNode;
   sequenceId: string;
+  isEditingMode: boolean;
 }
 
-/**
- * Only highlights if its sequenceId matches currently hovered one in context.
- * On mouse enter/leave, updates HoverContext.
- */
-const HighlightWrapper: React.FC<HighlightWrapperProps> = ({ children, sequenceId }) => {
+const HighlightWrapper: React.FC<HighlightWrapperProps> = ({ children, sequenceId, isEditingMode }) => {
   const hoverCtx = useContext(HoverContext);
 
-  if (!hoverCtx) {
-    // Should never happen as we always provide the context, but fallback to no highlight.
+  if (!hoverCtx || !isEditingMode) {
+    // No highlight outside editing mode.
     return <>{children}</>;
   }
 
@@ -57,12 +61,10 @@ const HighlightWrapper: React.FC<HighlightWrapperProps> = ({ children, sequenceI
         position: "relative"
       }}
       onMouseEnter={e => {
-        // Prevent accidental parent override if already inside child.
         e.stopPropagation();
         setHoveredId(sequenceId);
       }}
       onMouseLeave={e => {
-        // Only clear if we're the currently hovered
         e.stopPropagation();
         if (hoveredId === sequenceId) setHoveredId(null);
       }}
@@ -73,22 +75,22 @@ const HighlightWrapper: React.FC<HighlightWrapperProps> = ({ children, sequenceI
 };
 
 const RenderComponentInner: React.FC<RenderComponentRenderProps> = (props) => {
+  // Children are recursively rendered, highlight only happens at parent (container) level.
   const newComponent = (index: number, child: ComponentRenderProps) => {
-    const sequenceId = (props.sequenceId ?? "") + index.toString() + "$";
-    const content = (
+    const childSequenceId = (props.sequenceId ?? "") + index.toString() + "$";
+    return (
       <RenderComponentInner
-        key={sequenceId}
+        key={childSequenceId}
         {...child}
-        sequenceId={sequenceId}
+        sequenceId={childSequenceId}
         onSelectForEdit={props.onSelectForEdit}
         onEditStyles={props.onEditStyles}
         isEditingMode={props.isEditingMode}
       />
     );
-    return <HighlightWrapper key={sequenceId} sequenceId={sequenceId}>{content}</HighlightWrapper>;
   };
 
-  const renderchilds = () => {
+  const renderchildren = () => {
     if (Array.isArray(props?.childs)) {
       return (
         <>
@@ -100,10 +102,29 @@ const RenderComponentInner: React.FC<RenderComponentRenderProps> = (props) => {
     }
   };
 
-  // Root/leaf highlighting: always by sequenceId
+  // Utility for wrapping a node with highlight, always by sequenceId and only at container level.
   const wrapWithHighlighter = (node: React.ReactNode) =>
-    <HighlightWrapper sequenceId={props.sequenceId ?? ""}>{node}</HighlightWrapper>;
+    <HighlightWrapper sequenceId={props.sequenceId ?? ""} isEditingMode={props.isEditingMode}>{node}</HighlightWrapper>;
 
+  // Only use EditLayer for 'section' or 'div' WHEN editing mode is enabled!
+  if ((props.name === "section" || props.name === "div") && props.isEditingMode) {
+    return wrapWithHighlighter(
+      <EditLayer
+        {...props}
+        sequenceId={props.sequenceId}
+        onSelectForEdit={props.onSelectForEdit}
+        onEditStyles={props.onEditStyles}
+        isEditingMode={props.isEditingMode}
+      >
+        {props.name === "section"
+          ? <Section {...props}>{renderchildren()}</Section>
+          : <Div {...props}>{renderchildren()}</Div>
+        }
+      </EditLayer>
+    );
+  }
+
+  // Otherwise, just render and highlight the container.
   switch (props.name) {
     case "label":
       return wrapWithHighlighter(
@@ -115,20 +136,20 @@ const RenderComponentInner: React.FC<RenderComponentRenderProps> = (props) => {
     case "header":
       return wrapWithHighlighter(
         <Header {...props} data={(props.data ?? {}) as LabelComponentDataProps}>
-          {renderchilds()}
+          {renderchildren()}
         </Header>
       );
     case "navbar":
       return wrapWithHighlighter(
-        <Navigation {...props}>{renderchilds()}</Navigation>
+        <Navigation {...props}>{renderchildren()}</Navigation>
       );
     case "footer":
       return wrapWithHighlighter(
-        <Footer {...props}>{renderchilds()}</Footer>
+        <Footer {...props}>{renderchildren()}</Footer>
       );
     case "form":
       return wrapWithHighlighter(
-        <Form {...props}>{renderchilds()}</Form>
+        <Form {...props}>{renderchildren()}</Form>
       );
     case "link":
       return wrapWithHighlighter(
@@ -136,15 +157,15 @@ const RenderComponentInner: React.FC<RenderComponentRenderProps> = (props) => {
       );
     case "main":
       return wrapWithHighlighter(
-        <Main {...props}>{renderchilds()}</Main>
+        <Main {...props}>{renderchildren()}</Main>
       );
     case "section":
       return wrapWithHighlighter(
-        <Section {...props}>{renderchilds()}</Section>
+        <Section {...props}>{renderchildren()}</Section>
       );
     case "div":
       return wrapWithHighlighter(
-        <Div {...props}>{renderchilds()}</Div>
+        <Div {...props}>{renderchildren()}</Div>
       );
     case "input":
       return wrapWithHighlighter(
@@ -155,16 +176,15 @@ const RenderComponentInner: React.FC<RenderComponentRenderProps> = (props) => {
       );
     case "input_with_label":
       return wrapWithHighlighter(
-        <div>{renderchilds()}</div>
+        <div>{renderchildren()}</div>
       );
     case "root":
-      return <>{renderchilds()}</>;
+      return <>{renderchildren()}</>;
     default:
-      return <>{renderchilds()}</>;
+      return <>{renderchildren()}</>;
   }
 };
 
-// The exported wrapper will provide the hover context for all children.
 const RenderComponent: React.FC<RenderComponentRenderProps> = (props) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   return (
