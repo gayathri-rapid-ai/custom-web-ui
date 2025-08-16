@@ -15,7 +15,7 @@ import Form from "./SimpleForm";
 import { Link } from "./Link";
 import Main from "./Main";
 import Section from "./Section";
-import EditLayer from "./EditLayer";
+import EditLayer from "../configure/EditLayer";
 import Input from "./Input";
 import Div from "./Div";
 

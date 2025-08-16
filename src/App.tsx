@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { test_data } from "./data/components";
 import { ComponentProps, ComponentRenderProps, DataProps } from "./types";
 import RenderComponent from "./components";
-import EditComponent from "./components/EditComponent";
+import EditComponent from "./configure/EditComponent";
 import componentDefaults from "./data/component-defaults";
+import { reorderChildImmutable } from "./utils/configuration";
 
 const App: React.FC = () => {
   const data = localStorage.getItem("prev_data");
@@ -173,8 +174,11 @@ const App: React.FC = () => {
               const newComponent: ComponentProps = {
                 ...componentDefaults[component],
                 isEditingMode: true,
-                sequenceId: selectedID + ((selectedComponent?.childs?.length || 1) - 1) + "$",
-                onEditStyles: handleStyleChanges
+                sequenceId:
+                  selectedID +
+                  ((selectedComponent?.childs?.length || 1) - 1) +
+                  "$",
+                onEditStyles: handleStyleChanges,
               };
               if (selectedComponent?.childs) {
                 selectedComponent.childs.push(newComponent);
@@ -187,11 +191,18 @@ const App: React.FC = () => {
                 selectedID + (selectedComponent.childs.length - 1) + "$"
               );
               setPage({ ...page });
+              handleComponentChanges();
             }}
             onStylesChange={handleStyleChanges}
             onDeleteComponent={handleDeleteComponent}
-            onSelectChild={(sequenceId)=> {
+            onSelectChild={(sequenceId) => {
               handleComponentChange(sequenceId);
+            }}
+            onReorderChild={(childs:ComponentProps[])=>{
+              selectedComponent.childs = childs
+              const data_str = JSON.stringify(page);
+              localStorage.setItem("prev_data", data_str.replaceAll("true", "false"));
+              setPage({ ...page });
             }}
           />
         </div>
