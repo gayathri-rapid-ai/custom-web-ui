@@ -135,7 +135,12 @@ const App: React.FC = () => {
       <div style={leftPanelStyle}>
         <button
           onClick={changeEditMode}
-          style={{ float: "right", position: "fixed" }}
+          style={{
+            position: "fixed",
+            top: "20px",
+            right: "40px",
+            zIndex: 9999,
+          }}
         >
           {isEditingMode ? "Exit Editing Mode" : "Enter Editing Mode"}
         </button>

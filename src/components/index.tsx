@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, createContext, useContext, ReactNode, Dispatch, SetStateAction } from "react";
 import { Label } from "./Label";
 import {
   ComponentProps,
@@ -19,47 +19,80 @@ import EditLayer from "../configure/EditLayer";
 import Input from "./Input";
 import Div from "./Div";
 
+// --- HOVER CONTEXT to propagate hovered sequenceId through tree. ---
+type HoverCtxType = {
+  hoveredId: string | null;
+  setHoveredId: Dispatch<SetStateAction<string | null>>;
+};
+const HoverContext = createContext<HoverCtxType | undefined>(undefined);
+
 type RenderComponentRenderProps = ComponentRenderProps & ComponentUpdateProps;
 
-const RenderComponent: React.FC<RenderComponentRenderProps> = (props) => {
+interface HighlightWrapperProps {
+  children: ReactNode;
+  sequenceId: string;
+}
 
+/**
+ * Only highlights if its sequenceId matches currently hovered one in context.
+ * On mouse enter/leave, updates HoverContext.
+ */
+const HighlightWrapper: React.FC<HighlightWrapperProps> = ({ children, sequenceId }) => {
+  const hoverCtx = useContext(HoverContext);
+
+  if (!hoverCtx) {
+    // Should never happen as we always provide the context, but fallback to no highlight.
+    return <>{children}</>;
+  }
+
+  const { hoveredId, setHoveredId } = hoverCtx;
+
+  return (
+    <div
+      style={{
+        transition: "box-shadow 0.15s, border 0.15s",
+        border: hoveredId === sequenceId ? "2px solid #2196f3" : "2px solid transparent",
+        borderRadius: "5px",
+        boxShadow: hoveredId === sequenceId ? "0 0 7px 0 rgba(33,150,243, 0.18)" : undefined,
+        position: "relative"
+      }}
+      onMouseEnter={e => {
+        // Prevent accidental parent override if already inside child.
+        e.stopPropagation();
+        setHoveredId(sequenceId);
+      }}
+      onMouseLeave={e => {
+        // Only clear if we're the currently hovered
+        e.stopPropagation();
+        if (hoveredId === sequenceId) setHoveredId(null);
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
+const RenderComponentInner: React.FC<RenderComponentRenderProps> = (props) => {
   const newComponent = (index: number, child: ComponentRenderProps) => {
-
-    return (
-      <RenderComponent
-        key={index}
+    const sequenceId = (props.sequenceId ?? "") + index.toString() + "$";
+    const content = (
+      <RenderComponentInner
+        key={sequenceId}
         {...child}
-        sequenceId={props.sequenceId + index.toString() + "$"}
+        sequenceId={sequenceId}
         onSelectForEdit={props.onSelectForEdit}
         onEditStyles={props.onEditStyles}
         isEditingMode={props.isEditingMode}
       />
     );
+    return <HighlightWrapper key={sequenceId} sequenceId={sequenceId}>{content}</HighlightWrapper>;
   };
 
-  // Helper to render childs if present
   const renderchilds = () => {
     if (Array.isArray(props?.childs)) {
       return (
         <>
-          {props.childs.map((child: ComponentProps, index: number) => {
-            // If the child is in editing mode, wrap it in EditLayer
-            if (child.isEditing) {
-              return (
-                <EditLayer
-                  key={index}
-                  {...child}
-                  sequenceId={props.sequenceId + index.toString() + "$"}
-                  onSelectForEdit={props.onSelectForEdit}
-                  onEditStyles={props.onEditStyles}
-                  isEditingMode={props.isEditingMode}
-                >
-                  {newComponent(index, child)}
-                </EditLayer>
-              );
-            }
-            return newComponent(index, child);
-          })}
+          {props.childs.map((child: ComponentProps, index: number) => newComponent(index, child))}
         </>
       );
     } else {
@@ -67,54 +100,78 @@ const RenderComponent: React.FC<RenderComponentRenderProps> = (props) => {
     }
   };
 
+  // Root/leaf highlighting: always by sequenceId
+  const wrapWithHighlighter = (node: React.ReactNode) =>
+    <HighlightWrapper sequenceId={props.sequenceId ?? ""}>{node}</HighlightWrapper>;
+
   switch (props.name) {
     case "label":
-      return (
+      return wrapWithHighlighter(
         <Label
           {...props}
           data={(props.data ?? {}) as LabelComponentDataProps}
         />
       );
     case "header":
-      return (
+      return wrapWithHighlighter(
         <Header {...props} data={(props.data ?? {}) as LabelComponentDataProps}>
           {renderchilds()}
         </Header>
       );
     case "navbar":
-      return <Navigation {...props}>{renderchilds()}</Navigation>;
+      return wrapWithHighlighter(
+        <Navigation {...props}>{renderchilds()}</Navigation>
+      );
     case "footer":
-      return <Footer {...props}>{renderchilds()}</Footer>;
+      return wrapWithHighlighter(
+        <Footer {...props}>{renderchilds()}</Footer>
+      );
     case "form":
-      return <Form {...props}>{renderchilds()}</Form>;
+      return wrapWithHighlighter(
+        <Form {...props}>{renderchilds()}</Form>
+      );
     case "link":
-      return (
+      return wrapWithHighlighter(
         <Link {...props} data={(props.data ?? {}) as LinkComponentDataProps} />
       );
     case "main":
-      return <Main {...props}>{renderchilds()}</Main>;
+      return wrapWithHighlighter(
+        <Main {...props}>{renderchilds()}</Main>
+      );
     case "section":
-      return <Section {...props}>{renderchilds()}</Section>;
+      return wrapWithHighlighter(
+        <Section {...props}>{renderchilds()}</Section>
+      );
     case "div":
-      return <Div {...props}>{renderchilds()}</Div>;
+      return wrapWithHighlighter(
+        <Div {...props}>{renderchilds()}</Div>
+      );
     case "input":
-      return (
+      return wrapWithHighlighter(
         <Input
           {...props}
           data={(props.data ?? {}) as InputComponentDataProps}
-        ></Input>
+        />
       );
     case "input_with_label":
-      return(
-        <div>
-          {renderchilds()}
-        </div>
-      )
+      return wrapWithHighlighter(
+        <div>{renderchilds()}</div>
+      );
     case "root":
       return <>{renderchilds()}</>;
     default:
       return <>{renderchilds()}</>;
   }
+};
+
+// The exported wrapper will provide the hover context for all children.
+const RenderComponent: React.FC<RenderComponentRenderProps> = (props) => {
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  return (
+    <HoverContext.Provider value={{ hoveredId, setHoveredId }}>
+      <RenderComponentInner {...props} />
+    </HoverContext.Provider>
+  );
 };
 
 export default RenderComponent;

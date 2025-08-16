@@ -53,7 +53,7 @@ const componentDefaults: Record<string, ComponentRenderProps> = {
     data: {},
   } as ComponentRenderProps,
   input_with_label: {
-    name: "div",
+    name: "input_with_label",
     styles: {},
     use_common: true,
     childs: [
