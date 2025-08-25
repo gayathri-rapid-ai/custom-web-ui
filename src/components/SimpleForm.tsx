@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ComponentUpdateProps, FormComponentProps } from '../types';
 
 
-const Form: React.FC<FormComponentProps & ComponentUpdateProps> = ({ styles, children, sequenceId, onSelectForEdit }) => {
+const Form: React.FC<FormComponentProps & ComponentUpdateProps> = ({ style, children, sequenceId, onSelectForEdit }) => {
     const [formData, setFormData] = useState<Record<string, any>>({});
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -16,7 +16,7 @@ const Form: React.FC<FormComponentProps & ComponentUpdateProps> = ({ styles, chi
     };
 
     return (
-        <form onSubmit={handleSubmit} style={styles}>
+        <form onSubmit={handleSubmit} style={style}>
             {children}
             <button type="submit">Submit</button>
         </form>

@@ -1,5 +1,6 @@
 import React from "react";
-import { ComponentProps, InputComponentProps } from "../types";
+import { ComponentProps, InputComponentDataProps, InputComponentProps, LabelComponentDataProps } from "../types";
+import { Label } from "./Label";
 
 type InputProps = InputComponentProps &
   ComponentProps & {
@@ -27,8 +28,31 @@ const Input: React.FC<InputProps> = (props) => {
         }}
         onChange={isEditingMode ? (e) => e.preventDefault() : undefined}
         {...inputProps}
+        style={props.style}
       />
   );
 };
 
-export default Input;
+const InputWithLabel: React.FC<InputProps> = (props) => {
+  const { childs, isEditingMode, sequenceId, onSelectForEdit, data } = props;
+  const styles = Array.isArray(props.styles) ? props.styles : [{} , {}];
+  console.info("InputWithLabel props:", props);
+
+  return (
+    <div
+      className="input-with-label"
+      onClick={(e) => {
+        if (isEditingMode) {
+          e.stopPropagation();
+          onSelectForEdit?.(sequenceId);
+        }
+      }}
+      style={styles[0]}
+    >
+      <Label {...props} data={data as LabelComponentDataProps} style={styles[1]}/>
+      <Input {...props} data={data as InputComponentDataProps} style={styles[2]}/>
+    </div>
+  );
+}   
+
+export { Input, InputWithLabel };

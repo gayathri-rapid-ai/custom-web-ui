@@ -58,17 +58,18 @@ export type ComponentUpdateProps = {
   sequenceId: string;
   onSelectForEdit?: (sequenceId: string) => void;
   children?: ReactNode | ReactNode[] | null
-  onEditStyles: (styles: React.CSSProperties) => void;
+  onEditStyles: (styles: React.CSSProperties | React.CSSProperties[]) => void;
   isEditingMode: boolean
   isEditing?: boolean;
+  style?: React.CSSProperties;
 }
 
 export type ComponentRenderProps = {
   name: string;
-  styles: React.CSSProperties;
+  styles: React.CSSProperties | React.CSSProperties[];
   childs?: ComponentProps[];
   data?: DataProps
-  use_common?: boolean
+  merge_childs?: boolean
 };
 
 export type ComponentProps = ComponentRenderProps & ComponentUpdateProps

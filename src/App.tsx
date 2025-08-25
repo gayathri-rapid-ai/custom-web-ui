@@ -123,7 +123,7 @@ const App: React.FC = () => {
     localStorage.setItem("prev_data", data_str.replaceAll("true", "false"));
   };
 
-  const handleStyleChanges = (styles: React.CSSProperties) => {
+  const handleStyleChanges = (styles: React.CSSProperties | React.CSSProperties[]) => {
     if (selectedComponent) {
       selectedComponent.styles = styles;
     }
@@ -157,12 +157,8 @@ const App: React.FC = () => {
         <div style={rightPanelStyle}>
           <EditComponent
             {...selectedComponent}
-            onChange={(data: DataProps, styles: React.CSSProperties) => {
-              console.info(styles);
+            onDataChange={(data: DataProps) => {
               selectedComponent.data = data;
-              selectedComponent.styles = {
-                ...styles,
-              };
               handleComponentChanges();
             }}
             onSelectParent={onSetParentComponent}
@@ -190,16 +186,11 @@ const App: React.FC = () => {
               } else {
                 selectedComponent.childs = [newComponent];
               }
-              selectedComponent.isEditing = false;
-              setSelectedComponent(selectedComponent.childs[0]);
-              setSelectedID(
-                selectedID + (selectedComponent.childs.length - 1) + "$"
-              );
               setPage({ ...page });
               handleComponentChanges();
             }}
             onStylesChange={handleStyleChanges}
-            onDeleteComponent={handleDeleteComponent}
+            onDeleteComponent={handleDeleteComponent} 
             onSelectChild={(sequenceId) => {
               handleComponentChange(sequenceId);
             }}

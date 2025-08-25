@@ -23,7 +23,7 @@ import { Link } from "./Link";
 import Main from "./Main";
 import Section from "./Section";
 import EditLayer from "../configure/EditLayer";
-import Input from "./Input";
+import { Input, InputWithLabel } from "./Input";
 import Div from "./Div";
 
 // --- HOVER CONTEXT to propagate hovered sequenceId through tree. ---
@@ -86,12 +86,13 @@ const RenderComponentInner: React.FC<RenderComponentRenderProps> = (props) => {
         onSelectForEdit={props.onSelectForEdit}
         onEditStyles={props.onEditStyles}
         isEditingMode={props.isEditingMode}
+        style={Array.isArray(child.styles) ? child.styles[0] : child.styles}
       />
     );
   };
 
   const renderchildren = () => {
-    if (Array.isArray(props?.childs)) {
+    if (Array.isArray(props?.childs) && !props.merge_childs) {
       return (
         <>
           {props.childs.map((child: ComponentProps, index: number) => newComponent(index, child))}
@@ -107,7 +108,7 @@ const RenderComponentInner: React.FC<RenderComponentRenderProps> = (props) => {
     <HighlightWrapper sequenceId={props.sequenceId ?? ""} isEditingMode={props.isEditingMode}>{node}</HighlightWrapper>;
 
   // Only use EditLayer for 'section' or 'div' WHEN editing mode is enabled!
-  if ((props.name === "section" || props.name === "div") && props.isEditingMode) {
+  if ((props.name === "section" || props.name === "div" || props.name === "main") && props.isEditingMode) {
     return wrapWithHighlighter(
       <EditLayer
         {...props}
@@ -176,7 +177,10 @@ const RenderComponentInner: React.FC<RenderComponentRenderProps> = (props) => {
       );
     case "input_with_label":
       return wrapWithHighlighter(
-        <div>{renderchildren()}</div>
+        <InputWithLabel
+          {...props}
+          data={(props.data ?? {}) as InputComponentDataProps}
+        />
       );
     case "root":
       return <>{renderchildren()}</>;

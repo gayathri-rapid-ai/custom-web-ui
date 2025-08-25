@@ -5,9 +5,10 @@ import onClickComponent from "./Common";
 const Div: React.FC<ComponentRenderProps & ComponentUpdateProps> = (props) => {
 
     const clickComponent = onClickComponent(props)
+
     return (
         <div
-            style={props.styles}
+            style={props.style}
             onClick={clickComponent}
         >
             {props.children}

@@ -28,7 +28,7 @@ const NavBar: React.FC<NavBarComponentProps & ComponentUpdateProps> = (
           display: "flex",
           gap: "24px",
           alignItems: "center",
-          ...props.styles,
+          ...props.style,
         }}
         onClick={(e) => {
           if(isEditingMode) {

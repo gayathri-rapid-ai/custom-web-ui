@@ -54,8 +54,13 @@ const componentDefaults: Record<string, ComponentRenderProps> = {
   } as ComponentRenderProps,
   input_with_label: {
     name: "input_with_label",
-    styles: {},
-    use_common: true,
+    styles: [{}, {}, {}],
+    merge_childs: true,
+    data: {
+      label: "New Label",
+      inputType: "string",
+      placeHolder: "Field name",
+    },
     childs: [
       {
         name: "label",
@@ -69,7 +74,6 @@ const componentDefaults: Record<string, ComponentRenderProps> = {
         styles: {},
         data: {
           label: "Field",
-          inputType: "string",
           placeHolder: "Field name",
         },
       } as InputComponentProps,

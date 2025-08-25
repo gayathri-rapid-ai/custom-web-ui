@@ -9,7 +9,7 @@ const Header: React.FC<HeaderComponentProps & ComponentUpdateProps> = (
 ) => {
   return (
     <header
-      style={props.styles}
+      style={props.style}
       onClick={(e) => {
         props.onSelectForEdit?.(props.sequenceId);
         e.stopPropagation();

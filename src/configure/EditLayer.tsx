@@ -57,16 +57,16 @@ const EditLayer: React.FC<ComponentRenderProps & ComponentUpdateProps> = (props)
     widthRem: number;
     heightRem: number;
   }>({
-    widthRem: parseRem(props.styles?.minWidth, MIN_WIDTH_REM),
-    heightRem: parseRem(props.styles?.minHeight, MIN_HEIGHT_REM),
+    widthRem: parseRem(props.style?.minWidth, MIN_WIDTH_REM),
+    heightRem: parseRem(props.style?.minHeight, MIN_HEIGHT_REM),
   });
 
   useEffect(() => {
     setDimensions({
-      widthRem: parseRem(props.styles?.minWidth, MIN_WIDTH_REM),
-      heightRem: parseRem(props.styles?.minHeight, MIN_HEIGHT_REM),
+      widthRem: parseRem(props.style?.minWidth, MIN_WIDTH_REM),
+      heightRem: parseRem(props.style?.minHeight, MIN_HEIGHT_REM),
     });
-  }, [props.styles?.minWidth, props.styles?.minHeight]);
+  }, [props.style?.minWidth, props.style?.minHeight]);
 
   const startPos = useRef<{
     mouseX: number;
@@ -148,43 +148,71 @@ const EditLayer: React.FC<ComponentRenderProps & ComponentUpdateProps> = (props)
   const minWidthStr = `${MIN_WIDTH_REM}rem`;
   const minHeightStr = `${MIN_HEIGHT_REM}rem`;
 
+  // Only enable resizing for section and div
   if(props.name !== "section" && props.name !== "div") {
     return (
       <>
         {props.children}
       </>
-    )
+    );
   }
 
+  // Controlled style cleanup:
+  const outerStyle: React.CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    width: widthStr,
+    minWidth: minWidthStr,
+    height: heightStr,
+    minHeight: minHeightStr,
+    // Allow content to overflow so resize handles are fully visible
+    overflow: "visible",
+    position: "relative"
+  };
+
+  const innerStyle: React.CSSProperties = {
+    border: isResizing ? "2px dashed #6495ed" : "1px solid #d6d6d6",
+    backgroundColor: isResizing ? "#e6f2ff" : "#f0f8ff",
+    userSelect: isResizing ? "none" : undefined,
+    transition: isResizing
+      ? "none"
+      : "border 0.18s, background-color 0.18s, box-shadow 0.18s",
+    boxShadow: isResizing ? "0 0 6px #6495ed" : undefined,
+    width: widthStr,
+    minWidth: minWidthStr,
+    height: heightStr,
+    minHeight: minHeightStr,
+    position: "relative",
+  };
+
+  // Draw a resize handle in the lower-right corner
+  const handleSize = 16;
+  const resizeHandleStyle: React.CSSProperties = {
+    position: "absolute",
+    width: handleSize,
+    height: handleSize,
+    bottom: 0,
+    right: 0,
+    background: "#6495ed",
+    opacity: 0.8,
+    borderRadius: "4px",
+    cursor: "nwse-resize",
+    zIndex: 10,
+    display: isResizing ? "block" : "block", // always visible
+    pointerEvents: "none",
+  };
+
   return (
-    <div
-      style={{
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-        width: widthStr,
-        minWidth: minWidthStr,
-        height: heightStr,
-        minHeight: minHeightStr,
-        backgroundColor: 'green',
-      }}
-    >
+    <div style={outerStyle}>
       <div
         ref={layerRef}
-        style={{
-          border: "1px solid #d6d6d6",
-          userSelect: isResizing ? "none" : undefined,
-          transition: isResizing ? "none" : "border 0.2s",
-          width: widthStr,
-          minWidth: minWidthStr,
-          height: heightStr,
-          minHeight: minHeightStr,
-//          backgroundColor: 'red', // Fixed: remove the '#'
-        }}
+        style={innerStyle}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMoveDiv}
       >
         {props.children}
+        {/* visual resize handle */}
+        <div style={resizeHandleStyle} />
       </div>
     </div>
   );

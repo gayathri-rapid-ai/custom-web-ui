@@ -7,7 +7,7 @@ export const Label = (props: LabelComponentProps & ComponentUpdateProps) => {
 
   return (
     <label
-      style={props.styles}
+      style={props.style}
       onClick={onClick}
     >
       {props.data.label}

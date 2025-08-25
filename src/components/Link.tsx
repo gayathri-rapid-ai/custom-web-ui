@@ -5,7 +5,7 @@ export const Link: React.FC<LinkComponentProps & ComponentUpdateProps> = (
 ) => {
   return (
     <a
-      style={props.styles}
+      style={props.style}
       href={props.data.url}
       onClick={(e) => {
         props.onSelectForEdit?.(props.sequenceId);

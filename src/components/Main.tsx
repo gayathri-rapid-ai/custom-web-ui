@@ -6,7 +6,7 @@ export default function Main(props: ComponentRenderProps & ComponentUpdateProps)
 
   return (
     <main
-      style={props.styles}
+      style={props.style}
       onClick={(e) => {
         if(isEditingMode) {
           props.onSelectForEdit?.(props.sequenceId);

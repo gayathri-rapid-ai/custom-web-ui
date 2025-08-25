@@ -8,7 +8,7 @@ const Footer: React.FC<ComponentRenderProps & ComponentUpdateProps> = (props) =>
     const clickComponent = onClickComponent(props)
 
     return (
-        <footer style={props.styles} onClick={clickComponent}>
+        <footer style={props.style} onClick={clickComponent}>
             <p>&copy; {new Date().getFullYear()} Your Company. All rights reserved.</p>
         </footer>
     );

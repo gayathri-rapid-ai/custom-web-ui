@@ -4,7 +4,7 @@ import { ComponentRenderProps, ComponentUpdateProps } from "../types";
 const Section: React.FC<ComponentRenderProps & ComponentUpdateProps> = (props) => {
   return (
     <section
-      style={props.styles}
+      style={props.style}
       onClick={(e) => {
         if (props.isEditingMode) {
           props.onSelectForEdit?.(props.sequenceId);
