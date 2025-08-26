@@ -114,12 +114,20 @@ const EditLayer: React.FC<ComponentRenderProps & ComponentUpdateProps> = (props)
       heightRem: newHeightRem,
     });
 
-    // Call onEditStyles with correctly formatted rem strings (e.g. "6rem")
-    props.onEditStyles({
+    const styles = Array.isArray(props.styles) ? [
+       {
+        ...props.styles[0],
+        minWidth: `${newWidthRem}rem`,
+        minHeight: `${newHeightRem}rem`,
+       },
+       ...props.styles.slice(1),
+    ] : {
       ...props.styles,
       minWidth: `${newWidthRem}rem`,
       minHeight: `${newHeightRem}rem`,
-    });
+    };
+
+    props.onEditStyles(styles);
   };
 
   // OnMouseUp: cleanup event listeners
@@ -161,9 +169,9 @@ const EditLayer: React.FC<ComponentRenderProps & ComponentUpdateProps> = (props)
   const outerStyle: React.CSSProperties = {
     display: "flex",
     flexDirection: "column",
-    width: widthStr,
+    //width: widthStr,
     minWidth: minWidthStr,
-    height: heightStr,
+    //height: heightStr,
     minHeight: minHeightStr,
     // Allow content to overflow so resize handles are fully visible
     overflow: "visible",
@@ -178,9 +186,9 @@ const EditLayer: React.FC<ComponentRenderProps & ComponentUpdateProps> = (props)
       ? "none"
       : "border 0.18s, background-color 0.18s, box-shadow 0.18s",
     boxShadow: isResizing ? "0 0 6px #6495ed" : undefined,
-    width: widthStr,
+    //width: widthStr,
     minWidth: minWidthStr,
-    height: heightStr,
+    //height: heightStr,
     minHeight: minHeightStr,
     position: "relative",
   };

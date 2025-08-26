@@ -52,7 +52,7 @@ export type InputComponentDataProps = {
   placeHolder?: string;
 }
 
-export type DataProps = LinkComponentDataProps | LabelComponentDataProps | HeaderComponentDataProps | InputComponentDataProps | null;
+export type DataProps = LinkComponentDataProps | LabelComponentDataProps | HeaderComponentDataProps | InputComponentDataProps | ButtonComponentDataProps | null;
 
 export type ComponentUpdateProps = {
   sequenceId: string;
@@ -99,3 +99,12 @@ export type InputComponentProps = {
 export type FormComponentProps = ComponentRenderProps;
 
 export type ComponentName = string;
+
+export type ButtonComponentDataProps = {
+  label: string;
+  url: string;
+}
+
+export type ButtonComponentProps = {
+  data: ButtonComponentDataProps
+} & ComponentRenderProps;

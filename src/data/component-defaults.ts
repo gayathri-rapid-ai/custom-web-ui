@@ -1,7 +1,6 @@
 import {
   ComponentProps,
   ComponentRenderProps,
-  InputComponentDataProps,
   InputComponentProps,
   LabelComponentProps,
   LinkComponentProps,
@@ -79,6 +78,21 @@ const componentDefaults: Record<string, ComponentRenderProps> = {
       } as InputComponentProps,
     ] as ComponentProps[],
   },
+  "button": {
+    name: "button",
+    styles: {
+      padding: "8px 16px",
+      backgroundColor: "#007bff",
+      color: "#fff",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer",
+    },
+    data: {
+      label: "Click Me",
+      url: "#",
+    },
+  } as LinkComponentProps,
 };
 
 export default componentDefaults;

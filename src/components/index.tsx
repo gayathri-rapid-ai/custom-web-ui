@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { Label } from "./Label";
 import {
+  ButtonComponentDataProps,
   ComponentProps,
   ComponentRenderProps,
   ComponentUpdateProps,
@@ -25,6 +26,7 @@ import Section from "./Section";
 import EditLayer from "../configure/EditLayer";
 import { Input, InputWithLabel } from "./Input";
 import Div from "./Div";
+import { Button } from "./Button";
 
 // --- HOVER CONTEXT to propagate hovered sequenceId through tree. ---
 type HoverCtxType = {
@@ -181,6 +183,10 @@ const RenderComponentInner: React.FC<RenderComponentRenderProps> = (props) => {
           {...props}
           data={(props.data ?? {}) as InputComponentDataProps}
         />
+      );
+    case "button":
+      return wrapWithHighlighter(
+        <Button {...props} data={(props.data ?? {}) as ButtonComponentDataProps} />
       );
     case "root":
       return <>{renderchildren()}</>;

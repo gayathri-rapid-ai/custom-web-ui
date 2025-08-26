@@ -71,7 +71,6 @@ export function EditComponent({
   onSelectChild,
   onReorderChild,
 }: EditComponentRenderProps) {
-  const [showPanel, setShowPanel] = useState(true);
   const [activeTab, setActiveTab] = useState<
     "data" | "styles" | "components" | "children"
   >("styles");
@@ -89,9 +88,6 @@ export function EditComponent({
   );
   const [newStyleValueArr, setNewStyleValueArr] = useState<string[]>(
     Array(Array.isArray(styles) ? styles.length : 1).fill("")
-  );
-  const [selectedComponent, setSelectedComponent] = useState<string | null>(
-    null
   );
 
   const [childsState, setChildsState] = useState<ComponentProps[]>(
@@ -229,7 +225,6 @@ export function EditComponent({
             }}
             aria-label="Close edit panel"
             onClick={() => {
-              setShowPanel(false);
               onClose();
             }}
           >
